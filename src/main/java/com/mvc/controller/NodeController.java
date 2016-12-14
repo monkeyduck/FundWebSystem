@@ -23,17 +23,17 @@ public class NodeController {
     @Resource(name="NodeService")
     private NodeService nodeService;
 
-    @RequestMapping("index")
+    @RequestMapping("updown")
     public ModelAndView index(){
         ModelAndView mv = new ModelAndView();
-        mv.setViewName("index");
+        mv.setViewName("updown");
         return mv;
     }
 
-    @RequestMapping("updown")
+    @RequestMapping("index")
     public ModelAndView updown(){
         ModelAndView mv = new ModelAndView();
-        mv.setViewName("updown");
+        mv.setViewName("index");
         List<String> keyList = nodeService.getTopicKeys();
         StringBuilder data = new StringBuilder();
         keyList.forEach(key -> data.append(key + ","));

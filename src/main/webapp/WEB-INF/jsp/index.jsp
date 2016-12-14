@@ -49,7 +49,7 @@
 
     <script>
         $(function() {
-            $("[data-toggle='tooltip']").tooltip();
+//            $("[data-toggle='tooltip']").tooltip();
 
             $("#s1 option:first,#s2 option:first").attr("selected", true);
 
@@ -157,10 +157,7 @@
                     data: "searchKey="+input,
                     success: function (data) {
                         if (!isEmptyObject(data)) {
-                            var result = "";
-//                            $.each(data, function (i, item) {
-                                result = "<option value=\"" + data.nodeId +"\">" + data.topic + "</option>";
-//                            });
+                            var result = "<option value=\"" + data.nodeId +"\">" + data.topic + "</option>";
                             $("#s2").append(result);
                             alert("添加成功");
                         } else{
@@ -232,8 +229,7 @@
                     // data is ur summary
                     var result="";
                     $.each(data, function(i, item) {
-                        result += "<option value=\"" + item.nodeId +"\" data-toggle='tooltip' data-placement='right' " +
-                                "title='Tooltip on right'>" + item.topic + "</option>";
+                        result += "<option value=\"" + item.nodeId +"\">" + item.topic + "</option>";
                     });
                     $('#s1').html(result);
                 }
@@ -433,7 +429,6 @@
     </script>
 </head>
 <body>
-<%--<p id="allTopics" style="display: none">${allTopics}</p>--%>
 <div id="wrapper">
     <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
     <div class="navbar-header">
@@ -553,7 +548,7 @@
                         </td>
                         <td  align="center" width="5%">
                             <button class="btn btn-default" id="btn_tooltip" type="button" data-toggle="tooltip"
-                                    data-placement="right" title="Tooltip on right">预览</button><br/><br/>
+                                    data-placement="right" title="showToolTip()">预览</button><br/><br/>
                             <button class="btn btn-default" type="button" name="add" id="add"> >> </button><br/><br/>
                             <button class="btn btn-default" type="button" name="remove" id="remove"> << </button><br/><br/>
                             <button class="btn btn-success btn-sm" type="button" name="addall" id="addall">全选</button><br/><br/>
