@@ -2,7 +2,6 @@ package com.mvc.controller;
 
 import com.mvc.model.DTopic;
 import com.mvc.model.DialogNode;
-import com.mvc.model.NodeManagement;
 import com.mvc.model.NodeRelation;
 import com.mvc.service.NodeService;
 import org.springframework.stereotype.Controller;
@@ -84,8 +83,15 @@ public class NodeController {
     @RequestMapping("candidateNode")
     @ResponseBody
     public List<DialogNode> candidateNode(@RequestParam("id") int id){
+        int topicNum = 1052;
         List<DialogNode> ret = new ArrayList<>();
-        List<Integer> candList = NodeManagement.getCandidates(id);
+        List<Integer> candList = new ArrayList<>();
+        int topicId = nodeService.getTopicIdByNodeId(id);
+        for (int i = 0; i < 10; ++i) {
+            int topicIdCan = (topicId + i) % topicNum + 1;
+            int nodeIdCan = nodeService.getRootIdByTopicId(topicIdCan);
+            candList.add(nodeIdCan);
+        }
         List<Integer> connectedList = nodeService.getConnectedNode(id);
         candList.forEach(nodeId -> {
             if (!connectedList.contains(nodeId)) {
@@ -116,9 +122,19 @@ public class NodeController {
         nodeService.clearRelationBySrcId(srcId);
         for (int i = 1; i < idList.length; ++i){
             int id = Integer.parseInt(idList[i]);
-            NodeRelation relation = new NodeRelation(srcId, id, i+1);
+            NodeRelation relation = new NodeRelation(srcId, id, i);
             nodeService.insertRank(relation);
         }
+    }
+
+    @RequestMapping("getNodeContent")
+    @ResponseBody
+    public List<String> getNodeContent(@RequestParam("nodeId") String nodeId) {
+        int iNodeId = Integer.parseInt(nodeId);
+        List<String> list = new ArrayList<>();
+        String content = nodeService.getNodeContent(iNodeId);
+        list.add(content);
+        return list;
     }
 
 //    @RequestMapping("loadData")

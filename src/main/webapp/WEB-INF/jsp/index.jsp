@@ -166,7 +166,27 @@
                     }
                 });
             });
+
+            $('#btn_tooltip').tooltip({
+                title: showPreview
+            });
         });
+
+
+        function showPreview() {
+            var node_id = $("#s1").val();
+            var content = "abc";
+            $.ajax({
+                type: "GET",
+                url: "getNodeContent",
+                data: "nodeId=" + node_id,
+                async: false,
+                success: function (data) {
+                    content = data[0];
+                }
+            });
+            return content;
+        }
 
         function isEmptyObject(e) {
             var t;
@@ -430,6 +450,8 @@
 </head>
 <body>
 <div id="wrapper">
+
+    <!-- Navigation -->
     <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
     <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -548,7 +570,7 @@
                         </td>
                         <td  align="center" width="5%">
                             <button class="btn btn-default" id="btn_tooltip" type="button" data-toggle="tooltip"
-                                    data-placement="right" title="showToolTip()">预览</button><br/><br/>
+                                    data-placement="right">预览</button><br/><br/>
                             <button class="btn btn-default" type="button" name="add" id="add"> >> </button><br/><br/>
                             <button class="btn btn-default" type="button" name="remove" id="remove"> << </button><br/><br/>
                             <button class="btn btn-success btn-sm" type="button" name="addall" id="addall">全选</button><br/><br/>
