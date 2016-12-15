@@ -27,10 +27,11 @@
 
     <title>dialogNode</title>
 
-    <%--引入jQuery--%>
-    <script src='<c:url value="/resources/jquery-3.1.0.min.js"></c:url>'></script>
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+
     <%--引入bootstrap js--%>
-    <script src="<c:url value="/resources/bootstrap-3.3.5/js/bootstrap.js"></c:url>"></script>
+    <script src='<c:url value="/resources/sbadmin/vendor/bootstrap/js/bootstrap.min.js"></c:url>'></script>
 
 
     <link type="text/css" href='<c:url value="/resources/sbadmin/vendor/bootstrap/css/bootstrap.min.css"></c:url>' rel="stylesheet" >
@@ -48,9 +49,9 @@
     <![endif]-->
 
     <script>
-        $(function() {
-//            $("[data-toggle='tooltip']").tooltip();
-
+        jQuery.noConflict();
+        jQuery(document).ready(function ( $ ) {
+//        $(function() {
             $("#s1 option:first,#s2 option:first").attr("selected", true);
 
             $("#s1").dblclick(function () {
@@ -472,6 +473,70 @@
             </a>
             <ul class="dropdown-menu dropdown-tasks">
                 <li>
+                    <a href="#">
+                        <div>
+                            <p>
+                                <strong>Task 1</strong>
+                                <span class="pull-right text-muted">40% Complete</span>
+                            </p>
+                            <div class="progress progress-striped active">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
+                                    <span class="sr-only">40% Complete (success)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="#">
+                        <div>
+                            <p>
+                                <strong>Task 2</strong>
+                                <span class="pull-right text-muted">20% Complete</span>
+                            </p>
+                            <div class="progress progress-striped active">
+                                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
+                                    <span class="sr-only">20% Complete</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="#">
+                        <div>
+                            <p>
+                                <strong>Task 3</strong>
+                                <span class="pull-right text-muted">60% Complete</span>
+                            </p>
+                            <div class="progress progress-striped active">
+                                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
+                                    <span class="sr-only">60% Complete (warning)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="#">
+                        <div>
+                            <p>
+                                <strong>Task 4</strong>
+                                <span class="pull-right text-muted">80% Complete</span>
+                            </p>
+                            <div class="progress progress-striped active">
+                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
+                                    <span class="sr-only">80% Complete (danger)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li class="divider"></li>
+                <li>
                     <a class="text-center" href="#">
                         <strong>See All Tasks</strong>
                         <i class="fa fa-angle-right"></i>
@@ -611,7 +676,6 @@
 
 <!-- jQuery -->
 <script src='<c:url value="/resources/sbadmin/vendor/jquery/jquery.min.js"></c:url>'></script>
-<script src='<c:url value="/resources/sbadmin/vendor/bootstrap/js/bootstrap.min.js"></c:url>'></script>
 <script src='<c:url value="/resources/sbadmin/vendor/metisMenu/metisMenu.min.js"></c:url>'></script>
 <script src='<c:url value="/resources/sbadmin/vendor/raphael/raphael.min.js"></c:url>'></script>
 <script src='<c:url value="/resources/sbadmin/vendor/morrisjs/morris.min.js"></c:url>'></script>
