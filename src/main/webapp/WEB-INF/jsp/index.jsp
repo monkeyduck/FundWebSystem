@@ -446,6 +446,64 @@
             }
             return newDatas;
         }
+        // 选中一个类别,随机推送该类别下未关联的文案
+        function getRandomTopic(category_id) {
+            $.ajax({
+                type: "GET",
+                url: "getRandomTopic",
+                data: "categoryId=" + category_id,
+                success: function (data) {
+                    var result = "";
+                    $("#treeList").html("");
+                    $.each(data, function (i, item) {
+                        result += ("<li><a href='#' onclick=\"showDialogTree(" + item.id + ")\">"
+                        + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
+                    });
+                    $("#treeList").html(result);
+                }
+            });
+        }
+        // 搜索类别
+        function searchCategory() {
+            var category = document.getElementById("input_searchCategory").value;
+            $.ajax({
+                type: "GET",
+                url: "getTopicsByCategoryName",
+                data: "categoryName=" + category,
+                success: function (data) {
+                    var result = "";
+                    $("#treeList").html("");
+                    $.each(data, function (i, item) {
+                        result += ("<li><a href='#' onclick=\"showDialogTree(" + item.id + ")\">"
+                        + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
+                    });
+                    $("#treeList").html(result);
+                }
+            });
+        }
+
+        // 列出所有类别
+        function listAllCategories() {
+            $.ajax({
+                type: "GET",
+                url: "getAllCategories",
+                success: function (data) {
+                    var result = "";
+                    $("#dropdown_categories").html("");
+                    $.each(data, function (i, item) {
+                        result += "<li><a href=\"#\" onclick=\"getRandomTopic(" + item.categoryId + ")\">"
+                                + "<div><p><strong>" + item.category + "</strong><span class=\"pull-right text-muted\">"
+                                + item.completeRate + "% Complete</span> </p> <div class=\"progress progress-striped active\">"
+                                + "<div class=\"progress-bar progress-bar-" + item.infoColor + " role=\"progressbar\" aria-valuenow="
+                                + item.completeRate + " aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
+                                + item.completeRate +"%\"> <span class=\"sr-only\">" + item.completeRate
+                                + "% Complete</span> </div> </div> </div> </a> </li> <li class=\"divider\"></li>";
+
+                    });
+                    $("#dropdown_categories").html(result);
+                }
+            });
+        }
 
     </script>
 </head>
@@ -465,18 +523,17 @@
     </div>
     <!-- /.navbar-header -->
 
+
     <ul class="nav navbar-top-links navbar-right">
         <!-- /.dropdown -->
         <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
             </a>
-            <ul class="dropdown-menu dropdown-tasks">
-
-
+            <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories">
                 <c:forEach items="${categoryInfo}" var="categ">
                     <li>
-                        <a href="#">
+                        <a href="#" onclick="getRandomTopic(${categ.categoryId})">
                             <div>
                                 <p>
                                     <strong>${categ.category}</strong>
@@ -491,14 +548,11 @@
                         </a>
                     </li>
                     <li class="divider"></li>
-
                 </c:forEach>
 
-
-                <li class="divider"></li>
                 <li>
-                    <a class="text-center" href="#">
-                        <strong>See All Tasks</strong>
+                    <a class="text-center" href="#" onclick="listAllCategories()">
+                        <strong>See All Categories</strong>
                         <i class="fa fa-angle-right"></i>
                     </a>
                 </li>
@@ -532,6 +586,18 @@
             <!-- /.dropdown-user -->
         </li>
         <!-- /.dropdown -->
+        <li>
+            <div class="search-container">
+                <form class="form-inline float-sm-right">
+                    <input class="form-control" id="input_searchCategory" type="text" placeholder="搜索类别..">
+                    <%--<span class="input-group-btn">--%>
+                    <button class="btn btn-default" type="button" id="btn_searchCategory" onclick="searchCategory()">
+                        <i class="fa fa-search"></i></button>
+                    <%--</span>--%>
+                    <%--<button class="btn btn-outline-success" type="submit">Search</button>--%>
+                </form>
+            </div>
+        </li>
     </ul>
     <!-- /.navbar-top-links -->
 

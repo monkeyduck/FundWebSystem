@@ -39,7 +39,9 @@ public interface NodeDao {
 
     int getNodeNumByCategoryId(int categoryId);
 
-    List<Integer> getTopicsByCategoryId(int categoryId);
+    List<DTopic> getTopicsByCategoryId(int categoryId);
+
+    List<DTopic> getTopicsByCategoryName(String categoryName);
 
     List<Integer> getConnectedNodesByTopicId(int topicId);
 

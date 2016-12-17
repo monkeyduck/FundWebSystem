@@ -22,6 +22,8 @@ import java.util.List;
 public class NodeController {
 
     private static final int categoryNum = 3;
+    private static List<String> keyList = new ArrayList<>();
+    private static List<String> categoryList = new ArrayList<>();
 
     @Resource(name="NodeService")
     private NodeService nodeService;
@@ -37,8 +39,8 @@ public class NodeController {
     public ModelAndView index(){
         ModelAndView mv = new ModelAndView();
         mv.setViewName("index");
-        List<String> keyList = nodeService.getTopicKeys();
-        List<String> categoryList = nodeService.getCategories();
+        keyList = nodeService.getTopicKeys();
+        categoryList = nodeService.getCategories();
         List<Category> categoryInfoList = new ArrayList<>();
         // category_id starts from 0
         for (int i = 0; i <= categoryNum; ++i) {
@@ -148,6 +150,35 @@ public class NodeController {
         String content = nodeService.getNodeContent(iNodeId);
         list.add(content);
         return list;
+    }
+
+    @RequestMapping("getRandomTopic")
+    @ResponseBody
+    public List<DTopic> getRandomTopic(@RequestParam("categoryId") String categoryId) {
+        int iCateId = Integer.parseInt(categoryId);
+        List<DTopic> topicListByCateId = nodeService.getTopicsByCategoryId(iCateId);
+        return topicListByCateId;
+    }
+
+    @RequestMapping("getTopicsByCategoryName")
+    @ResponseBody
+    public List<DTopic> getTopicsByCategoryName(@RequestParam("categoryName") String categoryName){
+        List<DTopic> topicList = nodeService.getTopicsByCategoryName(categoryName);
+        return topicList;
+    }
+
+    @RequestMapping("getAllCategories")
+    @ResponseBody
+    public List<Category> getAllCategories() {
+        List<Category> categoryInfoList = new ArrayList<>();
+        int totalCateNum = 20;
+        // category_id starts from 0
+        for (int i = 0; i <= totalCateNum; ++i) {
+            int completeRate = (int)(calCompleteDegree(i) * 100);
+            Category category = new Category(i, categoryList.get(i), completeRate);
+            categoryInfoList.add(category);
+        }
+        return categoryInfoList;
     }
 
 //    @RequestMapping("loadData")

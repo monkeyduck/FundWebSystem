@@ -57,8 +57,12 @@
         SELECT min(`id`) from t_dialog_node where topic_id=#{topicId};
     </select>
 
-    <select id="getTopicsByCategoryId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
-        SELECT `t_topic`.`id` from `t_topic` where category_id=#{categoryId};
+    <select id="getTopicsByCategoryId" resultMap="DTopicMap" parameterType="java.lang.Integer">
+        SELECT `t_topic`.`id`,`t_topic`.`key` from `t_topic` where category_id=#{categoryId};
+    </select>
+
+    <select id="getTopicsByCategoryName" resultMap="DTopicMap" parameterType="java.lang.String">
+        SELECT `t_topic`.`id`,`t_topic`.`key` from `t_topic` where category=#{categoryName};
     </select>
 
     <select id="getConnectedNodeNumByCategoryId" resultType="java.lang.Integer" parameterType="java.lang.Integer">

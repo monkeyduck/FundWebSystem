@@ -88,8 +88,13 @@ public class NodeDaoImpl implements NodeDao {
     }
 
     @Override
-    public List<Integer> getTopicsByCategoryId(int categoryId) {
+    public List<DTopic> getTopicsByCategoryId(int categoryId) {
         return sqlSession.selectList("getTopicsByCategoryId");
+    }
+
+    @Override
+    public List<DTopic> getTopicsByCategoryName(String categoryName) {
+        return sqlSession.selectList("getTopicsByCategoryName");
     }
 
     @Override

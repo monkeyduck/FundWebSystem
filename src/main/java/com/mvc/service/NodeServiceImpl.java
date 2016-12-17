@@ -88,8 +88,13 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
-    public List<Integer> getTopicsByCategoryId(int categoryId) {
+    public List<DTopic> getTopicsByCategoryId(int categoryId) {
         return nodeDao.getTopicsByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<DTopic> getTopicsByCategoryName(String categoryName) {
+        return nodeDao.getTopicsByCategoryName(categoryName);
     }
 
     @Override
