@@ -1,9 +1,11 @@
 package com.mvc.controller;
 
+import com.mvc.model.Category;
 import com.mvc.model.DTopic;
 import com.mvc.model.DialogNode;
 import com.mvc.model.NodeRelation;
 import com.mvc.service.NodeService;
+import com.utils.Utils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,24 +21,35 @@ import java.util.List;
 @Controller
 public class NodeController {
 
+    private static final int categoryNum = 3;
+
     @Resource(name="NodeService")
     private NodeService nodeService;
 
     @RequestMapping("updown")
-    public ModelAndView index(){
+    public ModelAndView updown(){
         ModelAndView mv = new ModelAndView();
         mv.setViewName("updown");
         return mv;
     }
 
     @RequestMapping("index")
-    public ModelAndView updown(){
+    public ModelAndView index(){
         ModelAndView mv = new ModelAndView();
         mv.setViewName("index");
         List<String> keyList = nodeService.getTopicKeys();
+        List<String> categoryList = nodeService.getCategories();
+        List<Category> categoryInfoList = new ArrayList<>();
+        // category_id starts from 0
+        for (int i = 0; i <= categoryNum; ++i) {
+            int completeRate = (int)(calCompleteDegree(i) * 100);
+            Category category = new Category(i, categoryList.get(i), completeRate);
+            categoryInfoList.add(category);
+        }
         StringBuilder data = new StringBuilder();
         keyList.forEach(key -> data.append(key + ","));
         mv.addObject("allTopics", data);
+        mv.addObject("categoryInfo", categoryInfoList);
         return mv;
     }
 
@@ -172,6 +185,12 @@ public class NodeController {
         int topicId = nodeService.getTopicIdByNodeId(nodeId);
         String topic = nodeService.getTopicById(topicId);
         return new DialogNode(nodeId, topic, content);
+    }
+
+    private float calCompleteDegree(int categoryId) {
+        int nodeNum = nodeService.getNodeNumByCategoryId(categoryId);
+        int connNodeNum = nodeService.getConnectedNodeNumByCategoryId(categoryId);
+        return Utils.floatPrecision(Utils.devide(connNodeNum,nodeNum), 2);
     }
 
 }

@@ -83,6 +83,31 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
+    public int getNodeNumByCategoryId(int categoryId) {
+        return nodeDao.getNodeNumByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Integer> getTopicsByCategoryId(int categoryId) {
+        return nodeDao.getTopicsByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Integer> getConnectedNodesByTopicId(int topicId) {
+        return nodeDao.getConnectedNodesByTopicId(topicId);
+    }
+
+    @Override
+    public int getConnectedNodeNumByCategoryId(int categoryId) {
+        return nodeDao.getConnectedNodeNumByCategoryId(categoryId);
+    }
+
+    @Override
+    public List<String> getCategories() {
+        return nodeDao.getCategories();
+    }
+
+    @Override
     public int getRootIdByTopicId(int topicId) {
         return nodeDao.getRootIdByTopicId(topicId);
     }

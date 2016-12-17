@@ -83,7 +83,33 @@ public class NodeDaoImpl implements NodeDao {
     }
 
     @Override
+    public int getNodeNumByCategoryId(int categoryId) {
+        return sqlSession.selectOne("getNodeNumByCategoryId");
+    }
+
+    @Override
+    public List<Integer> getTopicsByCategoryId(int categoryId) {
+        return sqlSession.selectList("getTopicsByCategoryId");
+    }
+
+    @Override
+    public List<Integer> getConnectedNodesByTopicId(int topicId) {
+        return sqlSession.selectList("getConnectedNodesByTopicId");
+    }
+
+    @Override
     public int getRootIdByTopicId(int topicId) {
         return sqlSession.selectOne("getRootIdByTopicId");
     }
+
+    @Override
+    public int getConnectedNodeNumByCategoryId(int categoryId) {
+        return sqlSession.selectOne("getConnectedNodeNumByCategoryId");
+    }
+
+    @Override
+    public List<String> getCategories() {
+        return sqlSession.selectList("getCategories");
+    }
+
 }

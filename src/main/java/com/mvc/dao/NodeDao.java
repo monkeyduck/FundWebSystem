@@ -36,4 +36,14 @@ public interface NodeDao {
     void clearRelationBySrcId(int srcId);
 
     void insertTopicCategory(DTopic topic);
+
+    int getNodeNumByCategoryId(int categoryId);
+
+    List<Integer> getTopicsByCategoryId(int categoryId);
+
+    List<Integer> getConnectedNodesByTopicId(int topicId);
+
+    int getConnectedNodeNumByCategoryId(int categoryId);
+
+    List<String> getCategories();
 }

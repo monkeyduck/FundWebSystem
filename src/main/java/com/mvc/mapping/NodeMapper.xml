@@ -57,6 +57,25 @@
         SELECT min(`id`) from t_dialog_node where topic_id=#{topicId};
     </select>
 
+    <select id="getTopicsByCategoryId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT `t_topic`.`id` from `t_topic` where category_id=#{categoryId};
+    </select>
+
+    <select id="getConnectedNodeNumByCategoryId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+         SELECT count(distinct(src_id)) as cnt from `t_node_related` where `src_id` in
+        (SELECT `t_dialog_node`.`id` from `t_dialog_node` where `t_dialog_node`.`topic_id` in
+        (SELECT `t_topic`.`id` from `t_topic` where `t_topic`.`category_id` =#{categoryId}))
+    </select>
+
+    <select id="getNodeNumByCategoryId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT count(distinct(`t_dialog_node`.`id`)) from `t_dialog_node` where `t_dialog_node`.`topic_id` in
+        (SELECT `t_topic`.`id` from `t_topic` where `t_topic`.`category_id` =#{categoryId})
+    </select>
+
+    <select id="getCategories" resultType="java.lang.String">
+        SELECT DISTINCT(category) from t_topic ORDER BY category_id ASC;
+    </select>
+
     <insert id="insertRank" parameterType="com.mvc.model.NodeRelation" useGeneratedKeys="true" keyProperty="id">
       insert into t_node_related (`src_id`, `tar_id`, `rank`) VALUES (#{srcId},
       #{tarId}, #{rank});
