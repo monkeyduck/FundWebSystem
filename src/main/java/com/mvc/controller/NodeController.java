@@ -1,11 +1,9 @@
 package com.mvc.controller;
 
-import com.mvc.model.Category;
-import com.mvc.model.DTopic;
-import com.mvc.model.DialogNode;
-import com.mvc.model.NodeRelation;
+import com.mvc.model.*;
 import com.mvc.service.NodeService;
 import com.utils.Utils;
+import net.sf.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +30,24 @@ public class NodeController {
     public ModelAndView updown(){
         ModelAndView mv = new ModelAndView();
         mv.setViewName("updown");
+        return mv;
+    }
+
+    @RequestMapping("graph")
+    public ModelAndView graph(){
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("graph");
+        List<Category> categoryInfoList = new ArrayList<>();
+        if (keyList.isEmpty()) {
+            keyList = nodeService.getTopicKeys();
+            categoryList = nodeService.getCategories();
+        }
+        for (int i = 0; i <= categoryNum; ++i) {
+            int completeRate = (int)(calCompleteDegree(i) * 100);
+            Category category = new Category(i, categoryList.get(i), completeRate);
+            categoryInfoList.add(category);
+        }
+        mv.addObject("categoryInfo", categoryInfoList);
         return mv;
     }
 
@@ -179,6 +195,31 @@ public class NodeController {
             categoryInfoList.add(category);
         }
         return categoryInfoList;
+    }
+
+    @RequestMapping("getGraphData")
+    @ResponseBody
+    public JSONObject getGraphData(@RequestParam("topicId") int topicId) {
+        JSONObject json = new JSONObject();
+        List<GraphNode> nodes = new ArrayList<>();
+        GraphNode gNode = new GraphNode(0, "node1", "value1", 0);
+        GraphNode gNode2 = new GraphNode(1, "node2", "value2", 0);
+        GraphNode gNode3 = new GraphNode(2, "node3", "value3", 1);
+        nodes.add(gNode);
+        nodes.add(gNode2);
+        nodes.add(gNode3);
+        json.put("data", nodes);
+        List<GraphLink> links = new ArrayList<>();
+        links.add(new GraphLink(0, 1));
+        links.add(new GraphLink(0, 2));
+        json.put("links", links);
+        GraphCategory gCate = new GraphCategory("topic1", "circle");
+        GraphCategory gCate2 = new GraphCategory("topic2", "circle");
+        List<GraphCategory> gCateList = new ArrayList<>();
+        gCateList.add(gCate);
+        gCateList.add(gCate2);
+        json.put("categories", gCateList);
+        return json;
     }
 
 //    @RequestMapping("loadData")
