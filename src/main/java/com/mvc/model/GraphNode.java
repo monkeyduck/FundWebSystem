@@ -6,14 +6,17 @@ package com.mvc.model;
 public class GraphNode {
     private int id;
     private String name;
-    private String value;
+    private String label;
     private int category;
+    private int symbolSize;
+    public static final int rootSize = 50;
+    public static final int leafSize = 30;
 
-    public GraphNode(int id, String name, String value, int category) {
+    public GraphNode(int id, String name, int category, int size) {
         this.id = id;
         this.name = name;
-        this.value = value;
         this.category = category;
+        this.symbolSize = size;
     }
 
     public int getId() {
@@ -32,19 +35,27 @@ public class GraphNode {
         this.name = name;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public int getCategory() {
         return category;
     }
 
     public void setCategory(int category) {
         this.category = category;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public int getSymbolSize() {
+        return symbolSize;
+    }
+
+    public void setSymbolSize(int symbolSize) {
+        this.symbolSize = symbolSize;
     }
 }

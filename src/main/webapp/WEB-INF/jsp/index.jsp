@@ -51,7 +51,30 @@
     <script>
         jQuery.noConflict();
         jQuery(document).ready(function ( $ ) {
-//        $(function() {
+            // 异步初始化类别列表,避免加载时间过长
+            $.ajax({
+                type: "GET",
+                url: "listCategories",
+                data: "num=3",
+                success: function (data) {
+                    var result = "";
+                    $("#dropdown_categories").html("");
+                    $.each(data, function (i, item) {
+                        result += "<li><a href=\"#\" onclick=\"getTopicsByCategoryId(" + item.categoryId + ")\">"
+                                + "<div><p><strong>" + item.category + "</strong><span class=\"pull-right text-muted\">"
+                                + item.completeRate + "% Complete</span> </p> <div class=\"progress progress-striped active\">"
+                                + "<div class=\"progress-bar progress-bar-" + item.infoColor + " role=\"progressbar\" aria-valuenow="
+                                + item.completeRate + " aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
+                                + item.completeRate +"%\"> <span class=\"sr-only\">" + item.completeRate
+                                + "% Complete</span> </div> </div> </div> </a> </li> <li class=\"divider\"></li>";
+
+                    });
+                    result += "<li><a class=\"text-center\" href=\"#\" onclick=\"listAllCategories()\"> <strong>See All Categories</strong>"
+                                    + "<i class=\"fa fa-angle-right\"></i></a></li>";
+                    $("#dropdown_categories").html(result);
+                }
+            });
+
             $("#s1 option:first,#s2 option:first").attr("selected", true);
 
             $("#s1").dblclick(function () {
@@ -446,11 +469,11 @@
             }
             return newDatas;
         }
-        // 选中一个类别,随机推送该类别下未关联的文案
-        function getRandomTopic(category_id) {
+        // 选中一个类别,根据类别id显示所有文案
+        function getTopicsByCategoryId(category_id) {
             $.ajax({
                 type: "GET",
-                url: "getRandomTopic",
+                url: "getTopicsByCategoryIdOrdered",
                 data: "categoryId=" + category_id,
                 success: function (data) {
                     var result = "";
@@ -486,12 +509,13 @@
         function listAllCategories() {
             $.ajax({
                 type: "GET",
-                url: "getAllCategories",
+                url: "listCategories",
+                data: "num=20",
                 success: function (data) {
                     var result = "";
                     $("#dropdown_categories").html("");
                     $.each(data, function (i, item) {
-                        result += "<li><a href=\"#\" onclick=\"getRandomTopic(" + item.categoryId + ")\">"
+                        result += "<li><a href=\"#\" onclick=\"getTopicsByCategoryId(" + item.categoryId + ")\">"
                                 + "<div><p><strong>" + item.category + "</strong><span class=\"pull-right text-muted\">"
                                 + item.completeRate + "% Complete</span> </p> <div class=\"progress progress-striped active\">"
                                 + "<div class=\"progress-bar progress-bar-" + item.infoColor + " role=\"progressbar\" aria-valuenow="
@@ -531,24 +555,24 @@
                 <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories">
-                <c:forEach items="${categoryInfo}" var="categ">
-                    <li>
-                        <a href="#" onclick="getRandomTopic(${categ.categoryId})">
-                            <div>
-                                <p>
-                                    <strong>${categ.category}</strong>
-                                    <span class="pull-right text-muted">${categ.completeRate}% Complete</span>
-                                </p>
-                                <div class="progress progress-striped active">
-                                    <div class="progress-bar progress-bar-${categ.infoColor}" role="progressbar" aria-valuenow="${categ.completeRate}" aria-valuemin="0" aria-valuemax="100" style="width: ${categ.completeRate}%">
-                                        <span class="sr-only">${categ.completeRate}% Complete</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="divider"></li>
-                </c:forEach>
+                <%--<c:forEach items="${categoryInfo}" var="categ">--%>
+                    <%--<li>--%>
+                        <%--<a href="#" onclick="getTopicsByCategoryId(${categ.categoryId})">--%>
+                            <%--<div>--%>
+                                <%--<p>--%>
+                                    <%--<strong>${categ.category}</strong>--%>
+                                    <%--<span class="pull-right text-muted">${categ.completeRate}% Complete</span>--%>
+                                <%--</p>--%>
+                                <%--<div class="progress progress-striped active">--%>
+                                    <%--<div class="progress-bar progress-bar-${categ.infoColor}" role="progressbar" aria-valuenow="${categ.completeRate}" aria-valuemin="0" aria-valuemax="100" style="width: ${categ.completeRate}%">--%>
+                                        <%--<span class="sr-only">${categ.completeRate}% Complete</span>--%>
+                                    <%--</div>--%>
+                                <%--</div>--%>
+                            <%--</div>--%>
+                        <%--</a>--%>
+                    <%--</li>--%>
+                    <%--<li class="divider"></li>--%>
+                <%--</c:forEach>--%>
 
                 <li>
                     <a class="text-center" href="#" onclick="listAllCategories()">

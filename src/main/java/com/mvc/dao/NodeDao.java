@@ -48,4 +48,6 @@ public interface NodeDao {
     int getConnectedNodeNumByCategoryId(int categoryId);
 
     List<String> getCategories();
+
+
 }

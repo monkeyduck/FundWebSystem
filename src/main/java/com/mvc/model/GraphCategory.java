@@ -7,6 +7,11 @@ public class GraphCategory {
     private String name;
     private String symbol;
 
+    public GraphCategory(String name) {
+        this.name = name;
+        this.symbol = "circle"; // 默认为圆形
+    }
+
     public GraphCategory(String name, String symbol) {
         this.name = name;
         this.symbol = symbol;

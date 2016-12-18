@@ -3,12 +3,13 @@ package com.mvc.model;
 /**
  * Created by llc on 16/11/16.
  */
-public class DTopic {
+public class DTopic implements Comparable<DTopic> {
     private int id;
     private String key;
     private String content;
     private int catId;
     private String category;
+    private int complete;
 
     public int getId() {
         return id;
@@ -48,5 +49,19 @@ public class DTopic {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public int getComplete() {
+        return complete;
+    }
+
+    public void setComplete(int complete) {
+        this.complete = complete;
+    }
+
+    @Override
+    public int compareTo(DTopic o) {
+        int complete = o.getComplete();
+        return Integer.compare(this.complete, complete);
     }
 }

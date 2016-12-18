@@ -87,8 +87,35 @@
             });
         }
 
+        // 选中一个类别,显示给类别下的文案
+        function listTopicsByCategoryId(category_id) {
+            $.ajax({
+                type: "GET",
+                url: "getTopicsByCategoryId",
+                data: "categoryId=" + category_id,
+                success: function (data) {
+                    var result = "";
+                    $("#treeList").html("");
+                    $.each(data, function (i, item) {
+                        result += ("<li><a href='#' onclick=\"showGraph(" + item.id + ")\">"
+                        + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
+                    });
+                    $("#treeList").html(result);
+                }
+            });
+        }
+
         // 显示关联节点网状图
         function showGraph(topic_id) {
+            $.ajax({
+                type: "GET",
+                url: "getTopicByTopicId",
+                data: "topicId=" + topic_id,
+                success: function (data) {
+                    var topic = data.topic;
+                    $("#tree-title").html(topic);
+                }
+            });
             var myChart = echarts.init(document.getElementById('chartPanel'));
             var option = {
                 tooltip : {
@@ -134,7 +161,7 @@
                     itemStyle : {//===============图形样式，有 normal 和 emphasis 两个状态。normal 是图形在默认状态下的样式；emphasis 是图形在高亮状态下的样式，比如在鼠标悬浮或者图例联动高亮时。
                         normal : { //默认样式
                             label : {
-                                show : true
+                                show : false
                             },
                             borderType : 'solid', //图形描边类型，默认为实线，支持 'solid'（实线）, 'dashed'(虚线), 'dotted'（点线）。
 //                            borderColor : 'rgba(255,215,0,0.4)', //设置图形边框为淡金色,透明度为0.4
@@ -162,7 +189,7 @@
                     },
                     label : { //=============图形上的文本标签
                         normal : {
-                            show : true,//是否显示标签。
+                            show : false,//是否显示标签。
                             position : 'inside',//标签的位置。['50%', '50%'] [x,y]
                             textStyle : { //标签的字体样式
 //                                color : '#cde6c7', //字体颜色
@@ -204,7 +231,30 @@
                     }]
                 });
             });
+        }
 
+        // 列出所有类别
+        function listAllCategories() {
+            $.ajax({
+                type: "GET",
+                url: "listCategories",
+                data: "num=20",
+                success: function (data) {
+                    var result = "";
+                    $("#dropdown_categories").html("");
+                    $.each(data, function (i, item) {
+                        result += "<li><a href=\"#\" onclick=\"getTopicsByCategoryId(" + item.categoryId + ")\">"
+                                + "<div><p><strong>" + item.category + "</strong><span class=\"pull-right text-muted\">"
+                                + item.completeRate + "% Complete</span> </p> <div class=\"progress progress-striped active\">"
+                                + "<div class=\"progress-bar progress-bar-" + item.infoColor + " role=\"progressbar\" aria-valuenow="
+                                + item.completeRate + " aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
+                                + item.completeRate +"%\"> <span class=\"sr-only\">" + item.completeRate
+                                + "% Complete</span> </div> </div> </div> </a> </li> <li class=\"divider\"></li>";
+
+                    });
+                    $("#dropdown_categories").html(result);
+                }
+            });
         }
 
 
@@ -236,7 +286,7 @@
                 <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories">
                     <c:forEach items="${categoryInfo}" var="categ">
                         <li>
-                            <a href="#" onclick="getRandomTopic(${categ.categoryId})">
+                            <a href="#" onclick="listTopicsByCategoryId(${categ.categoryId})">
                                 <div>
                                     <p>
                                         <strong>${categ.category}</strong>

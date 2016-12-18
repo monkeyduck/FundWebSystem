@@ -28,7 +28,7 @@
     </select>
 
     <select id="getNodesByTopicId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
-        select `t_dialog_node.id` from t_dialog_node where `topic_id`=#{topicId}
+        select `t_dialog_node`.`id` from t_dialog_node where `topic_id`=#{topicId}
     </select>
 
     <select id="getLeafNodesByTopicId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
@@ -69,6 +69,11 @@
          SELECT count(distinct(src_id)) as cnt from `t_node_related` where `src_id` in
         (SELECT `t_dialog_node`.`id` from `t_dialog_node` where `t_dialog_node`.`topic_id` in
         (SELECT `t_topic`.`id` from `t_topic` where `t_topic`.`category_id` =#{categoryId}))
+    </select>
+
+    <select id="getConnectedNodesByTopicId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        SELECT DISTINCT(src_id) from t_node_related where src_id in
+        (SELECT `t_dialog_node`.`id` from `t_dialog_node` where `t_dialog_node`.`topic_id`=#{topicId});
     </select>
 
     <select id="getNodeNumByCategoryId" resultType="java.lang.Integer" parameterType="java.lang.Integer">

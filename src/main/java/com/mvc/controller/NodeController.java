@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 /**
  * Created by llc on 16/11/2.
  */
@@ -57,17 +57,19 @@ public class NodeController {
         mv.setViewName("index");
         keyList = nodeService.getTopicKeys();
         categoryList = nodeService.getCategories();
-        List<Category> categoryInfoList = new ArrayList<>();
+
+        // 采用异步加载的方法替代,避免加载时间过长
+//        List<Category> categoryInfoList = new ArrayList<>();
         // category_id starts from 0
-        for (int i = 0; i <= categoryNum; ++i) {
-            int completeRate = (int)(calCompleteDegree(i) * 100);
-            Category category = new Category(i, categoryList.get(i), completeRate);
-            categoryInfoList.add(category);
-        }
+//        for (int i = 0; i <= categoryNum; ++i) {
+//            int completeRate = (int)(calCompleteDegree(i) * 100);
+//            Category category = new Category(i, categoryList.get(i), completeRate);
+//            categoryInfoList.add(category);
+//        }
         StringBuilder data = new StringBuilder();
         keyList.forEach(key -> data.append(key + ","));
         mv.addObject("allTopics", data);
-        mv.addObject("categoryInfo", categoryInfoList);
+//        mv.addObject("categoryInfo", categoryInfoList);
         return mv;
     }
 
@@ -168,12 +170,27 @@ public class NodeController {
         return list;
     }
 
-    @RequestMapping("getRandomTopic")
+    @RequestMapping("getTopicsByCategoryId")
     @ResponseBody
-    public List<DTopic> getRandomTopic(@RequestParam("categoryId") String categoryId) {
+    public List<DTopic> getTopicsByCategoryId(@RequestParam("categoryId") String categoryId) {
         int iCateId = Integer.parseInt(categoryId);
         List<DTopic> topicListByCateId = nodeService.getTopicsByCategoryId(iCateId);
         return topicListByCateId;
+    }
+
+    @RequestMapping("getTopicsByCategoryIdOrdered")
+    @ResponseBody
+    public List<DTopic> getTopicsByCategoryIdOrdered(@RequestParam("categoryId") String categoryId) {
+        int iCateId = Integer.parseInt(categoryId);
+        List<DTopic> topicListByCateId = nodeService.getTopicsByCategoryId(iCateId);
+        List<DTopic> sortedTopicList = new ArrayList<>();
+        for (DTopic topic: topicListByCateId) {
+            float complete = calCompleteDegreeOfTopic(topic.getId());
+            topic.setComplete((int)(100 * complete));
+            sortedTopicList.add(topic);
+        }
+        Collections.sort(sortedTopicList);
+        return sortedTopicList;
     }
 
     @RequestMapping("getTopicsByCategoryName")
@@ -183,13 +200,12 @@ public class NodeController {
         return topicList;
     }
 
-    @RequestMapping("getAllCategories")
+    @RequestMapping("listCategories")
     @ResponseBody
-    public List<Category> getAllCategories() {
+    public List<Category> listCategories(@RequestParam("num") int num) {
         List<Category> categoryInfoList = new ArrayList<>();
-        int totalCateNum = 20;
         // category_id starts from 0
-        for (int i = 0; i <= totalCateNum; ++i) {
+        for (int i = 0; i <= num; ++i) {
             int completeRate = (int)(calCompleteDegree(i) * 100);
             Category category = new Category(i, categoryList.get(i), completeRate);
             categoryInfoList.add(category);
@@ -202,23 +218,50 @@ public class NodeController {
     public JSONObject getGraphData(@RequestParam("topicId") int topicId) {
         JSONObject json = new JSONObject();
         List<GraphNode> nodes = new ArrayList<>();
-        GraphNode gNode = new GraphNode(0, "node1", "value1", 0);
-        GraphNode gNode2 = new GraphNode(1, "node2", "value2", 0);
-        GraphNode gNode3 = new GraphNode(2, "node3", "value3", 1);
-        nodes.add(gNode);
-        nodes.add(gNode2);
-        nodes.add(gNode3);
-        json.put("data", nodes);
-        List<GraphLink> links = new ArrayList<>();
-        links.add(new GraphLink(0, 1));
-        links.add(new GraphLink(0, 2));
-        json.put("links", links);
-        GraphCategory gCate = new GraphCategory("topic1", "circle");
-        GraphCategory gCate2 = new GraphCategory("topic2", "circle");
         List<GraphCategory> gCateList = new ArrayList<>();
-        gCateList.add(gCate);
-        gCateList.add(gCate2);
+        List<GraphLink> links = new ArrayList<>();
+        List<Integer> cateList = new ArrayList<>();
+        List<Integer> nodeList = new ArrayList<>();
+        Set<Integer> nodeIdSet = new HashSet<>();
+
+        int rootId = nodeService.getRootIdByTopicId(topicId);
+        GraphNode gRoot = new GraphNode(rootId, nodeService.getNodeContent(rootId),
+                calGraphCateByTopicId(topicId, cateList, gCateList), GraphNode.rootSize);
+        nodes.add(gRoot);
+        nodeIdSet.add(rootId);
+
+        List<Integer> leafNodeList = nodeService.getLeafNodesByTopicId(topicId);
+        for (int nodeId: leafNodeList) {
+            if (!nodeIdSet.contains(nodeId)) {
+                links.add(new GraphLink(calGnodeId(rootId, nodeList), calGnodeId(nodeId, nodeList)));
+                nodes.add(new GraphNode(nodeId, nodeService.getNodeContent(nodeId),
+                        calGraphCateByTopicId(topicId, cateList, gCateList), GraphNode.leafSize));
+                nodeIdSet.add(nodeId);
+                List<Integer> connectedNodeList = nodeService.getConnectedNode(nodeId);
+                for (int connId: connectedNodeList) {
+                    if (!nodeIdSet.contains(connId)) {
+                        int connTopicId = nodeService.getTopicIdByNodeId(connId);
+                        nodes.add(new GraphNode(connId, nodeService.getNodeContent(connId),
+                                calGraphCateByTopicId(connTopicId, cateList, gCateList), GraphNode.rootSize));
+                        nodeIdSet.add(connId);
+                    }
+                    links.add(new GraphLink(calGnodeId(nodeId, nodeList), calGnodeId(connId, nodeList)));
+                }
+            }
+
+        }
+        json.put("data", nodes);
+        json.put("links", links);
         json.put("categories", gCateList);
+        return json;
+    }
+
+    @RequestMapping("getTopicByTopicId")
+    @ResponseBody
+    public JSONObject getTopicByTopicId(@RequestParam("topicId") int topicId) {
+        String topic = nodeService.getTopicById(topicId);
+        JSONObject json = new JSONObject();
+        json.put("topic", topic);
         return json;
     }
 
@@ -259,10 +302,58 @@ public class NodeController {
         return new DialogNode(nodeId, topic, content);
     }
 
+    /**
+     * 这种计算方法是用已关联叶子节点数/所有叶子节点数,更精确但是很慢
+     * @param categoryId
+     * @return
+     */
+//    private float calCompleteDegree(int categoryId) {
+//        List<DTopic> topicIdList = nodeService.getTopicsByCategoryId(categoryId);
+//        int leafNodeNum = 0;
+//        for (DTopic topic: topicIdList) {
+//            List<Integer> list = nodeService.getLeafNodesByTopicId(topic.getId());
+//            leafNodeNum += list.size();
+//        }
+//        int connNodeNum = nodeService.getConnectedNodeNumByCategoryId(categoryId);
+//        return Utils.floatPrecision(Utils.devide(connNodeNum, leafNodeNum), 2);
+//    }
+
+    /**
+     * 这种方法是用已关联叶子节点数/所有节点数, 快但是会有非叶子节点混入导致结果不能到100%
+     * @param categoryId
+     * @return
+     */
     private float calCompleteDegree(int categoryId) {
         int nodeNum = nodeService.getNodeNumByCategoryId(categoryId);
-        int connNodeNum = nodeService.getConnectedNodeNumByCategoryId(categoryId);
-        return Utils.floatPrecision(Utils.devide(connNodeNum,nodeNum), 2);
+        int connNum = nodeService.getConnectedNodeNumByCategoryId(categoryId);
+        return Utils.floatPrecision(Utils.devide(connNum, nodeNum), 2);
+    }
+
+    private float calCompleteDegreeOfTopic(int topicId) {
+        int leafNodeNum = nodeService.getLeafNodesByTopicId(topicId).size();
+        List<Integer> connList = nodeService.getConnectedNodesByTopicId(topicId);
+        int connNodeNum = connList.size();
+        return Utils.floatPrecision(Utils.devide(connNodeNum, leafNodeNum), 2);
+    }
+
+    private int calGraphCateByTopicId(int topicId, List<Integer> cateList, List<GraphCategory> gCateList) {
+        if (cateList.indexOf(topicId) != -1) {
+            return cateList.indexOf(topicId);
+        } else {
+            cateList.add(topicId);
+            String topicName = nodeService.getTopicById(topicId);
+            gCateList.add(new GraphCategory(topicName));
+            return cateList.size() - 1;
+        }
+    }
+
+    private int calGnodeId(int nodeId, List<Integer> nodeIdList) {
+        if (nodeIdList.indexOf(nodeId) != -1) {
+            return nodeIdList.indexOf(nodeId);
+        } else {
+            nodeIdList.add(nodeId);
+            return nodeIdList.size() - 1;
+        }
     }
 
 }
