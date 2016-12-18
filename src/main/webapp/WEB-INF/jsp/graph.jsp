@@ -88,7 +88,7 @@
         }
 
         // 选中一个类别,显示给类别下的文案
-        function listTopicsByCategoryId(category_id) {
+        function getTopicsByCategoryId(category_id) {
             $.ajax({
                 type: "GET",
                 url: "getTopicsByCategoryId",
@@ -283,10 +283,10 @@
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
                 </a>
-                <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories">
+                <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories" style="height: 420px; overflow-y: auto;">
                     <c:forEach items="${categoryInfo}" var="categ">
                         <li>
-                            <a href="#" onclick="listTopicsByCategoryId(${categ.categoryId})">
+                            <a href="#" onclick="getTopicsByCategoryId(${categ.categoryId})">
                                 <div>
                                     <p>
                                         <strong>${categ.category}</strong>
@@ -315,24 +315,11 @@
             <!-- /.dropdown -->
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-alerts">
-                    <li>
-                        <a class="text-center" href="/index">
-                            <strong>回到节点关联</strong>
-                            <i class="fa fa-angle-right"></i>
-                        </a>
-                    </li>
-                </ul>
-                <!-- /.dropdown-alerts -->
-            </li>
-            <!-- /.dropdown -->
-            <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
+                    <li><a href="/index"><i class="fa fa-edit fa-fw"></i> 关联节点</a></li>
+                    <li class="divider"></li>
                     <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
                     </li>
                     <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>

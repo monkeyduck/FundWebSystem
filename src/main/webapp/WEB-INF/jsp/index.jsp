@@ -554,7 +554,7 @@
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
             </a>
-            <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories">
+            <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories" style="height: 420px; overflow-y: auto;">
                 <%--<c:forEach items="${categoryInfo}" var="categ">--%>
                     <%--<li>--%>
                         <%--<a href="#" onclick="getTopicsByCategoryId(${categ.categoryId})">--%>
@@ -583,28 +583,21 @@
             </ul>
             <!-- /.dropdown-tasks -->
         </li>
-        <!-- /.dropdown -->
-        <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-alerts">
 
-            </ul>
-            <!-- /.dropdown-alerts -->
-        </li>
         <!-- /.dropdown -->
         <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu dropdown-user">
+                <li><a href="/graph"><i class="fa fa-bar-chart-o fa-fw"></i> 关联图</a></li>
+                <li class="divider"></li>
                 <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
                 </li>
                 <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                 </li>
                 <li class="divider"></li>
-                <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                <li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                 </li>
             </ul>
             <!-- /.dropdown-user -->
