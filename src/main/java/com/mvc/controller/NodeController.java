@@ -116,13 +116,11 @@ public class NodeController {
     @RequestMapping("candidateNode")
     @ResponseBody
     public List<DialogNode> candidateNode(@RequestParam("id") int id){
-        int topicNum = 1052;
         List<DialogNode> ret = new ArrayList<>();
         List<Integer> candList = new ArrayList<>();
-        int topicId = nodeService.getTopicIdByNodeId(id);
-        for (int i = 0; i < 10; ++i) {
-            int topicIdCan = (topicId + i) % topicNum + 1;
-            int nodeIdCan = nodeService.getRootIdByTopicId(topicIdCan);
+        List<Integer> topicIdList = NodeManager.getCandidateNodeList(id);
+        for (int topicId: topicIdList) {
+            int nodeIdCan = nodeService.getRootIdByTopicId(topicId);
             candList.add(nodeIdCan);
         }
         List<Integer> connectedList = nodeService.getConnectedNode(id);

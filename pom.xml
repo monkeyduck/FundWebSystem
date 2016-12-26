@@ -21,6 +21,18 @@
     </properties>
 
     <dependencies>
+        <!--slf4j-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+
         <!-- spring核心包 -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -143,6 +155,26 @@
             <classifier>jdk15</classifier>
             <version>2.4</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.aibasis</groupId>
+            <artifactId>logger</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -543,7 +543,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">对话节点关联</a>
+        <a class="navbar-brand" href="<%=basePath%>index">对话节点关联</a>
     </div>
     <!-- /.navbar-header -->
 
@@ -590,7 +590,7 @@
                 <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu dropdown-user">
-                <li><a href="/graph"><i class="fa fa-bar-chart-o fa-fw"></i> 关联图</a></li>
+                <li><a href="<%=basePath%>graph"><i class="fa fa-bar-chart-o fa-fw"></i> 关联图</a></li>
                 <li class="divider"></li>
                 <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
                 </li>
