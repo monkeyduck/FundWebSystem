@@ -182,8 +182,8 @@
                     success: function (data) {
                         if (!isEmptyObject(data)) {
                             var result = "<option value=\"" + data.nodeId +"\">" + data.topic + "</option>";
-                            $("#s2").append(result);
-                            alert("添加成功");
+                            $("#s1").append(result);
+                            $("#btn-addNode-input").html("");
                         } else{
                             alert("不存在该节点: " + input);
                         }
@@ -590,7 +590,7 @@
                 <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu dropdown-user">
-                <li><a href="<%=basePath%>graph"><i class="fa fa-bar-chart-o fa-fw"></i> 关联图</a></li>
+                <li><a href="<%=basePath%>graph"><i class="fa fa-bar-chart-o fa-fw"></i>关联图</a></li>
                 <li class="divider"></li>
                 <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
                 </li>
@@ -675,17 +675,6 @@
                     <tr>
                         <td width="45%">
                             <select name="s1" size="20" multiple="multiple" id="s1" style="width:100%"></select>
-                        </td>
-                        <td  align="center" width="5%">
-                            <button class="btn btn-default" id="btn_tooltip" type="button" data-toggle="tooltip"
-                                    data-placement="right">预览</button><br/><br/>
-                            <button class="btn btn-default" type="button" name="add" id="add"> >> </button><br/><br/>
-                            <button class="btn btn-default" type="button" name="remove" id="remove"> << </button><br/><br/>
-                            <button class="btn btn-success btn-sm" type="button" name="addall" id="addall">全选</button><br/><br/>
-                            <button class="btn btn-danger btn-sm" name="removeall" id="removeall">全删</button></td>
-
-                        <td width="45%">
-                            <select name="s2" size="20" multiple="multiple" id="s2" style="width:100%"></select>
                             <div class="panel-footer">
                                 <div class="input-group">
                                     <input id="btn-addNode-input" type="text" class="form-control input-sm"
@@ -697,6 +686,17 @@
                                 </div>
                                 <div id="hint_addTopic"></div>
                             </div>
+                        </td>
+                        <td  align="center" width="5%">
+                            <button class="btn btn-default" id="btn_tooltip" type="button" data-toggle="tooltip"
+                                    data-placement="right">预览</button><br/><br/>
+                            <button class="btn btn-default" type="button" name="add" id="add"> >> </button><br/><br/>
+                            <button class="btn btn-default" type="button" name="remove" id="remove"> << </button><br/><br/>
+                            <button class="btn btn-success btn-sm" type="button" name="addall" id="addall">全选</button><br/><br/>
+                            <button class="btn btn-danger btn-sm" name="removeall" id="removeall">全删</button></td>
+
+                        <td width="45%">
+                            <select name="s2" size="20" multiple="multiple" id="s2" style="width:100%"></select>
                         </td>
                         <td width="5%" align="center">
                             <button class="btn btn-default" name="s2top" id="s2top">置顶</button><br/><br/>
