@@ -26,13 +26,6 @@ public class NodeController {
     @Resource(name="NodeService")
     private NodeService nodeService;
 
-    @RequestMapping("updown")
-    public ModelAndView updown(){
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("updown");
-        return mv;
-    }
-
     @RequestMapping("graph")
     public ModelAndView graph(){
         ModelAndView mv = new ModelAndView();

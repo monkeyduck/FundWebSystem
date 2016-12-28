@@ -251,7 +251,7 @@
                     $.each(data, function (i, item) {
                         topic = item.topic;
                         var conn = (item.hasConnect)?"已关联":"未关联";
-                        ret += "<a href='#' class='list-group-item' onclick='getCandidates(" + item.nodeId +
+                        ret += "<a href='#' class='list-group-item' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
                         ")'><i class=\"fa fa-comment fa-fw\"></i>"
                         + item.content + "<span class=\"pull-right text-muted small\"><em>" + conn + "</em></span></a>";
                     });
@@ -276,6 +276,7 @@
                         result += "<option value=\"" + item.nodeId +"\">" + item.topic + "</option>";
                     });
                     $('#s1').html(result);
+                    window.location.hash="#leafNode"+id;
                 }
             });
             // 更新右边已关联列表
@@ -289,8 +290,10 @@
                         result += "<option value=\"" + item.nodeId + "\">" + item.topic + "</option>";
                     });
                     $("#s2").html(result);
+                    window.location.hash="#leafNode"+id;
                 }
             });
+            window.location.hash="#leafNode"+id;
         }
         
         function saveRank() {
@@ -670,7 +673,7 @@
                     <!-- /.panel-body -->
                 </div>
             </div>
-            <div class="col-lg-12">
+            <div class="col-lg-12" id="nodeConnection">
 
                 <table class="table table-bordered table-hover table-striped">
                     <tr>
