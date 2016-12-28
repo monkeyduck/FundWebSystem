@@ -220,6 +220,7 @@
         }
 
         function searchTopic(key) {
+            getObjectById("hint_searchTopic").style.display = 'none';
             if(!arguments[0]) key = document.getElementById("text_searchTopic").value;
             $.ajax({
                 type: "GET",
@@ -233,7 +234,6 @@
                         + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
                     });
                     $("#treeList").html(result);
-//                    document.getElementById("treeList").html(result);
                 }
             });
         }
@@ -394,6 +394,7 @@
         }
         //下拉框提示
         function showAutoWord(wordid, autoid) {
+            getObjectById(autoid).style.display='block';
             getObjectById(autoid).style.border = "0px black solid";
             var autoNode = getObjectById(autoid);
             var wordText = getObjectById(wordid).value;
@@ -554,7 +555,7 @@
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
             </a>
-            <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories" style="height: 420px; overflow-y: auto;">
+            <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories" style="max-height: 420px; overflow-y: auto;">
                 <%--<c:forEach items="${categoryInfo}" var="categ">--%>
                     <%--<li>--%>
                         <%--<a href="#" onclick="getTopicsByCategoryId(${categ.categoryId})">--%>
@@ -632,11 +633,11 @@
                                 </button>
                             </span>
                     </div>
-                    <div id="hint_searchTopic"></div>
+                    <div id="hint_searchTopic" style="max-height: 200px;overflow-y: auto;display: none;"></div>
                     <!-- /input-group -->
                 </li>
             </ul>
-            <ul class="nav" id="treeList">
+            <ul class="nav" id="treeList" style="max-height: 520px; overflow-y: auto;">
 
             </ul>
         </div>
@@ -684,7 +685,7 @@
                                     <button class="btn btn-success btn-sm" id="btn-addNode">Add</button>
                                 </span>
                                 </div>
-                                <div id="hint_addTopic"></div>
+                                <div id="hint_addTopic" style="height: 220px; overflow-y: auto;"></div>
                             </div>
                         </td>
                         <td  align="center" width="5%">
