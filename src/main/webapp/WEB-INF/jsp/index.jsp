@@ -51,6 +51,11 @@
     <script>
         jQuery.noConflict();
         jQuery(document).ready(function ( $ ) {
+            // 如果指定了话题id, 那么直接初始化话题节点列表
+            var topic_id = "${topicId}";
+            if (!isEmptyObject(topic_id)) {
+                showDialogTree(topic_id);
+            }
             // 异步初始化类别列表,避免加载时间过长
             $.ajax({
                 type: "GET",
@@ -230,7 +235,7 @@
                     var result = "";
                     $("#treeList").html("");
                     $.each(data, function (i, item) {
-                        result += ("<li><a href='#' onclick=\"showDialogTree(" + item.id + ")\">"
+                        result += ("<li><a href='#topicId"+item.id+"' onclick=\"showDialogTree(" + item.id + ")\">"
                         + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
                     });
                     $("#treeList").html(result);
@@ -310,7 +315,6 @@
                 url: 'saveRank',
                 data: "options=" + result
             });
-            alert("保存成功");
             var treeId = document.getElementById("tree-id").innerText;
             $.ajax({
                 type: "GET",
@@ -326,6 +330,7 @@
                                 + item.content + "<span class=\"pull-right text-muted small\"><em>" + conn + "</em></span></a>";
                     });
                     $("#leafNodePanel").html(ret);
+                    alert("保存成功");
                 }
             });
         }
@@ -483,7 +488,7 @@
                     var result = "";
                     $("#treeList").html("");
                     $.each(data, function (i, item) {
-                        result += ("<li><a href='#' onclick=\"showDialogTree(" + item.id + ")\">"
+                        result += ("<li><a href='#topicId"+item.id+"' id='dialogTree"+item.id+"' onclick=\"showDialogTree(" + item.id + ")\">"
                         + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
                     });
                     $("#treeList").html(result);
@@ -501,7 +506,7 @@
                     var result = "";
                     $("#treeList").html("");
                     $.each(data, function (i, item) {
-                        result += ("<li><a href='#' onclick=\"showDialogTree(" + item.id + ")\">"
+                        result += ("<li><a href='#topicId"+item.id+"' onclick=\"showDialogTree(" + item.id + ")\">"
                         + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
                     });
                     $("#treeList").html(result);

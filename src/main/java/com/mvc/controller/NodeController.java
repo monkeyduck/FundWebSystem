@@ -45,26 +45,20 @@ public class NodeController {
     }
 
     @RequestMapping("index")
-    public ModelAndView index(){
+    public ModelAndView index(@RequestParam(value = "topicId", defaultValue = "-1") int topicId){
         ModelAndView mv = new ModelAndView();
         mv.setViewName("index");
         keyList = nodeService.getTopicKeys();
         categoryList = nodeService.getCategories();
-
-        // 采用异步加载的方法替代,避免加载时间过长
-//        List<Category> categoryInfoList = new ArrayList<>();
-        // category_id starts from 0
-//        for (int i = 0; i <= categoryNum; ++i) {
-//            int completeRate = (int)(calCompleteDegree(i) * 100);
-//            Category category = new Category(i, categoryList.get(i), completeRate);
-//            categoryInfoList.add(category);
-//        }
         StringBuilder data = new StringBuilder();
         keyList.forEach(key -> data.append(key + ","));
         mv.addObject("allTopics", data);
-//        mv.addObject("categoryInfo", categoryInfoList);
+        if (topicId > 0) {
+            mv.addObject("topicId", topicId);
+        }
         return mv;
     }
+
 
     @RequestMapping("getLeafNodesByTopicId")
     @ResponseBody
