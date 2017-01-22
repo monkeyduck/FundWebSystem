@@ -69,6 +69,7 @@ public class NodeController {
         nodeList.forEach(nodeId -> {
             String content = nodeService.getNodeContent(nodeId);
             DialogNode dialogNode = new DialogNode(nodeId, topic, content, isConnected(nodeId));
+            dialogNode.setConnectedNodeStr(getConnectedNode(nodeId));
             ret.add(dialogNode);
         });
         return ret;

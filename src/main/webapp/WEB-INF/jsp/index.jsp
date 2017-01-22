@@ -256,9 +256,12 @@
                     $.each(data, function (i, item) {
                         topic = item.topic;
                         var conn = (item.hasConnect)?"已关联":"未关联";
+//                        ret += "<a href='#' class='list-group-item' style='height:auto' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
+//                        ")'>" + item.content + "<span class='pull-right text-muted small'>" + item.connectedNodeStr + "</span><span class='pull-right text-muted small' style='margin-right: 12px'><em>" + conn + "</em></span></a>";
+
                         ret += "<a href='#' class='list-group-item' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
-                        ")'><i class=\"fa fa-comment fa-fw\"></i>"
-                        + item.content + "<span class=\"pull-right text-muted small\"><em>" + conn + "</em></span></a>";
+                                ")'><span class='list-group-item-heading'>" + conn + " " + item.connectedNodeStr +"</span><p class='list-group-item-text text-muted small'>" + item.content + "</p></a>";
+
                     });
                     $("#tree-title").html(topic);
                     $("#tree-id").html(treeId);
@@ -325,9 +328,11 @@
                     var ret = "";
                     $.each(data, function (i, item) {
                         var conn = (item.hasConnect)?"已关联":"未关联";
-                        ret += "<a href='#' class='list-group-item' onclick='getCandidates(" + item.nodeId +
-                                ")'><i class=\"fa fa-comment fa-fw\"></i>"
-                                + item.content + "<span class=\"pull-right text-muted small\"><em>" + conn + "</em></span></a>";
+//                        ret += "<a href='#' class='list-group-item' onclick='getCandidates(" + item.nodeId +
+//                                ")'><i class=\"fa fa-comment fa-fw\"></i>"
+//                                + item.content + "<span class=\"pull-right text-muted small\"><em>" + conn + "</em></span></a>";
+                        ret += "<a href='#' class='list-group-item' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
+                                ")'><span class='list-group-item-heading'>" + conn + " " + item.connectedNodeStr +"</span><p class='list-group-item-text text-muted small'>" + item.content + "</p></a>";
                     });
                     $("#leafNodePanel").html(ret);
                     alert("保存成功");
@@ -676,6 +681,23 @@
                         <!-- /.list-group -->
                     </div>
                     <!-- /.panel-body -->
+                    <%--<div class="panel-body">--%>
+                        <%--<div class="table-responsive">--%>
+                            <%--<table class="table table-hover">--%>
+                                <%--<thead>--%>
+                                <%--<tr>--%>
+                                    <%--<th>文案</th>--%>
+                                    <%--<th>是否关联</th>--%>
+                                    <%--<th>关联文案</th>--%>
+                                <%--</tr>--%>
+                                <%--</thead>--%>
+                                <%--<tbody id="leafNodePanel">--%>
+                                <%--</tbody>--%>
+                            <%--</table>--%>
+                        <%--</div>--%>
+                        <%--<!-- /.table-responsive -->--%>
+                    <%--</div>--%>
+
                 </div>
             </div>
             <div class="col-lg-12" id="nodeConnection">
