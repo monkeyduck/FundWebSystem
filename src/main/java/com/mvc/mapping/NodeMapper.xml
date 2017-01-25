@@ -82,7 +82,7 @@
     </select>
 
     <select id="getCategories" resultType="java.lang.String">
-        SELECT DISTINCT(category) from t_topic ORDER BY category_id ASC;
+        SELECT DISTINCT(category) from t_category ORDER BY category_id ASC;
     </select>
 
     <insert id="insertRank" parameterType="com.mvc.model.NodeRelation" useGeneratedKeys="true" keyProperty="id">
