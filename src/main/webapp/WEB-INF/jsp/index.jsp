@@ -187,7 +187,8 @@
                     data: "searchKey="+input,
                     success: function (data) {
                         if (!isEmptyObject(data)) {
-                            var result = "<option value=\"" + data.nodeId +"\">" + data.topic + "</option>";
+                            var title = showPreview(data.nodeId);
+                            var result = "<option title='" + title + "' value=\"" + data.nodeId +"\">" + data.topic + "</option>";
                             $("#s1").append(result);
                             $("#btn-addNode-input").html("");
                         } else{
@@ -195,6 +196,7 @@
                         }
                     }
                 });
+                document.getElementById("btn-addNode-input").value = '';
             });
 
         });
@@ -276,19 +278,20 @@
 
         function getCandidates(id) {
             var newList = new Array();
+            var newNode;
             for (var i = 0; i < leafNodeList.length; i++) {
                 var node = leafNodeList[i];
                 var start = node.indexOf("(");
                 var end = node.indexOf(")");
                 var nodeId = node.substring(start + 1, end);
                 if (id == nodeId) {
-                    var newNode = node.replace(/class='list-group-item'/, "class='list-group-item' " +
+                    newNode = node.replace(/class='list-group-item'/, "class='list-group-item' " +
                             "style='background-color:#f5f5f5'");
-                    newList.push(newNode);
                 } else {
                     newList.push(leafNodeList[i]);
                 }
             }
+            newList.push(newNode);
             showLeafNodeList(newList);
             // 更新左边候选列表
             $("#src-id").html(id);
@@ -339,25 +342,8 @@
                 data: "options=" + result
             });
             var treeId = document.getElementById("tree-id").innerText;
-            $.ajax({
-                type: "GET",
-                url: "getLeafNodesByTopicId",
-                data: "id=" + treeId,
-                success: function (data) {
-                    leafNodeList = [];
-                    $.each(data, function (i, item) {
-                        var conn = (item.hasConnect)?"已关联":"未关联";
-//                        ret += "<a href='#' class='list-group-item' onclick='getCandidates(" + item.nodeId +
-//                                ")'><i class=\"fa fa-comment fa-fw\"></i>"
-//                                + item.content + "<span class=\"pull-right text-muted small\"><em>" + conn + "</em></span></a>";
-                        var content = "<a href='#' class='list-group-item' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
-                                ")'><span class='list-group-item-heading'>" + conn + " " + item.connectedNodeStr +"</span><p class='list-group-item-text text-muted small'>" + item.content + "</p></a>";
-                        leafNodeList.push(content);
-                    });
-                    showLeafNodeList(leafNodeList);
-                    alert("保存成功");
-                }
-            });
+            showDialogTree(treeId);
+            alert("保存成功");
         }
 
         var allData = "${allTopics}";
@@ -707,8 +693,6 @@
                             </div>
                         </td>
                         <td  align="center" width="5%">
-                            <button class="btn btn-default" id="btn_tooltip" type="button" data-toggle="tooltip"
-                                    data-placement="left" style="display: none;">预览</button><br/><br/>
                             <button class="btn btn-default" type="button" name="add" id="add"> >> </button><br/><br/>
                             <button class="btn btn-default" type="button" name="remove" id="remove"> << </button><br/><br/>
                             <button class="btn btn-success btn-sm" type="button" name="addall" id="addall">全选</button><br/><br/>
