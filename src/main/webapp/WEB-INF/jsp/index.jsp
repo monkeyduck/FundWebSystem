@@ -49,6 +49,7 @@
     <![endif]-->
 
     <script>
+        leafNodeList = new Array();
         jQuery.noConflict();
         jQuery(document).ready(function ( $ ) {
             // 如果指定了话题id, 那么直接初始化话题节点列表
@@ -196,14 +197,10 @@
                 });
             });
 
-            $('#btn_tooltip').tooltip({
-                title: showPreview
-            });
         });
 
 
-        function showPreview() {
-            var node_id = $("#s1").val();
+        function showPreview(node_id) {
             var content = "";
             $.ajax({
                 type: "GET",
@@ -216,6 +213,7 @@
             });
             return content;
         }
+
 
         function isEmptyObject(e) {
             var t;
@@ -252,25 +250,46 @@
                 data: "id=" + treeId,
                 success: function (data) {
                     var topic = "";
-                    var ret = "";
+                    leafNodeList = [];
                     $.each(data, function (i, item) {
                         topic = item.topic;
-                        var conn = (item.hasConnect)?"已关联":"未关联";
-//                        ret += "<a href='#' class='list-group-item' style='height:auto' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
-//                        ")'>" + item.content + "<span class='pull-right text-muted small'>" + item.connectedNodeStr + "</span><span class='pull-right text-muted small' style='margin-right: 12px'><em>" + conn + "</em></span></a>";
-
-                        ret += "<a href='#' class='list-group-item' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
+                        var conn = (item.hasConnect)?"<span style='color:green'>已关联</span>":"<span style='color:red'>未关联</span>";
+                        var cont = "<a href='#' class='list-group-item' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
                                 ")'><span class='list-group-item-heading'>" + conn + " " + item.connectedNodeStr +"</span><p class='list-group-item-text text-muted small'>" + item.content + "</p></a>";
+                        leafNodeList.push(cont);
 
                     });
                     $("#tree-title").html(topic);
                     $("#tree-id").html(treeId);
-                    $("#leafNodePanel").html(ret);
+                    showLeafNodeList(leafNodeList);
                 }
             });
         }
 
+        function showLeafNodeList(list) {
+            var content = "";
+            for (var i = 0; i < list.length; i++) {
+                content += list[i];
+            }
+            $("#leafNodePanel").html(content);
+        }
+
         function getCandidates(id) {
+            var newList = new Array();
+            for (var i = 0; i < leafNodeList.length; i++) {
+                var node = leafNodeList[i];
+                var start = node.indexOf("(");
+                var end = node.indexOf(")");
+                var nodeId = node.substring(start + 1, end);
+                if (id == nodeId) {
+                    var newNode = node.replace(/class='list-group-item'/, "class='list-group-item' " +
+                            "style='background-color:#f5f5f5'");
+                    newList.push(newNode);
+                } else {
+                    newList.push(leafNodeList[i]);
+                }
+            }
+            showLeafNodeList(newList);
             // 更新左边候选列表
             $("#src-id").html(id);
             $.ajax({
@@ -281,7 +300,8 @@
                     // data is ur summary
                     var result="";
                     $.each(data, function(i, item) {
-                        result += "<option value=\"" + item.nodeId +"\">" + item.topic + "</option>";
+                        var detail = showPreview(item.nodeId);
+                        result += "<option title='"+ detail + "' value='" + item.nodeId +"'>" + item.topic + "</option>";
                     });
                     $('#s1').html(result);
                     window.location.hash="#leafNode"+id;
@@ -324,17 +344,17 @@
                 url: "getLeafNodesByTopicId",
                 data: "id=" + treeId,
                 success: function (data) {
-                    var topic = "";
-                    var ret = "";
+                    leafNodeList = [];
                     $.each(data, function (i, item) {
                         var conn = (item.hasConnect)?"已关联":"未关联";
 //                        ret += "<a href='#' class='list-group-item' onclick='getCandidates(" + item.nodeId +
 //                                ")'><i class=\"fa fa-comment fa-fw\"></i>"
 //                                + item.content + "<span class=\"pull-right text-muted small\"><em>" + conn + "</em></span></a>";
-                        ret += "<a href='#' class='list-group-item' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
+                        var content = "<a href='#' class='list-group-item' id='leafNode"+item.nodeId+"' onclick='getCandidates(" + item.nodeId +
                                 ")'><span class='list-group-item-heading'>" + conn + " " + item.connectedNodeStr +"</span><p class='list-group-item-text text-muted small'>" + item.content + "</p></a>";
+                        leafNodeList.push(content);
                     });
-                    $("#leafNodePanel").html(ret);
+                    showLeafNodeList(leafNodeList);
                     alert("保存成功");
                 }
             });
@@ -353,18 +373,20 @@
         initHint("btn-addNode-input", "hint_addTopic");
         function initHint(wordid, autoid) {
             var wordInput = getObjectById(autoid);
-            var oldWord = getObjectById(autoid).value;
             // 隐藏自动补全框,并定义css属性
-            wordInput.style.position = "absolute";
-            wordInput.style.border = "0px gray solid";
-            wordInput.style.top = wordInput.offsetTop + wordInput.offserHeight + 5 + "px";
-            wordInput.style.left = wordInput.offserLeft + "px";
-            wordInput.style.width = getObjectById(wordid).offsetWidth + -1 + "px";
+            if (wordInput != null) {
+                wordInput.style.position = "absolute";
+                wordInput.style.border = "0px gray solid";
+                wordInput.style.top = wordInput.offsetTop + wordInput.offserHeight + 5 + "px";
+                wordInput.style.left = wordInput.offserLeft + "px";
+                wordInput.style.width = getObjectById(wordid).offsetWidth + -1 + "px";
+            }
         }
         // 给文本框添加键盘按下并弹起的事件
         function onKeyUp(event, wordid, autoid) {
             var myEvent = event || window.event;
             var keyCode = myEvent.keyCode;
+            var oldWord = getObjectById(autoid).value;
             if((keyCode >= 65 && keyCode <= 90) || keyCode == 8 || keyCode == 46) {// 字母,退格或删除键
                 showAutoWord(wordid, autoid);
             } else if(keyCode == 38 || keyCode == 40) {// 向上,向下
@@ -569,25 +591,6 @@
                 <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu dropdown-tasks" id="dropdown_categories" style="max-height: 420px; overflow-y: auto;">
-                <%--<c:forEach items="${categoryInfo}" var="categ">--%>
-                    <%--<li>--%>
-                        <%--<a href="#" onclick="getTopicsByCategoryId(${categ.categoryId})">--%>
-                            <%--<div>--%>
-                                <%--<p>--%>
-                                    <%--<strong>${categ.category}</strong>--%>
-                                    <%--<span class="pull-right text-muted">${categ.completeRate}% Complete</span>--%>
-                                <%--</p>--%>
-                                <%--<div class="progress progress-striped active">--%>
-                                    <%--<div class="progress-bar progress-bar-${categ.infoColor}" role="progressbar" aria-valuenow="${categ.completeRate}" aria-valuemin="0" aria-valuemax="100" style="width: ${categ.completeRate}%">--%>
-                                        <%--<span class="sr-only">${categ.completeRate}% Complete</span>--%>
-                                    <%--</div>--%>
-                                <%--</div>--%>
-                            <%--</div>--%>
-                        <%--</a>--%>
-                    <%--</li>--%>
-                    <%--<li class="divider"></li>--%>
-                <%--</c:forEach>--%>
-
                 <li>
                     <a class="text-center" href="#" onclick="listAllCategories()">
                         <strong>See All Categories</strong>
@@ -681,22 +684,6 @@
                         <!-- /.list-group -->
                     </div>
                     <!-- /.panel-body -->
-                    <%--<div class="panel-body">--%>
-                        <%--<div class="table-responsive">--%>
-                            <%--<table class="table table-hover">--%>
-                                <%--<thead>--%>
-                                <%--<tr>--%>
-                                    <%--<th>文案</th>--%>
-                                    <%--<th>是否关联</th>--%>
-                                    <%--<th>关联文案</th>--%>
-                                <%--</tr>--%>
-                                <%--</thead>--%>
-                                <%--<tbody id="leafNodePanel">--%>
-                                <%--</tbody>--%>
-                            <%--</table>--%>
-                        <%--</div>--%>
-                        <%--<!-- /.table-responsive -->--%>
-                    <%--</div>--%>
 
                 </div>
             </div>
@@ -706,6 +693,7 @@
                     <tr>
                         <td width="45%">
                             <select name="s1" size="20" multiple="multiple" id="s1" style="width:100%"></select>
+
                             <div class="panel-footer">
                                 <div class="input-group">
                                     <input id="btn-addNode-input" type="text" class="form-control input-sm"
@@ -720,7 +708,7 @@
                         </td>
                         <td  align="center" width="5%">
                             <button class="btn btn-default" id="btn_tooltip" type="button" data-toggle="tooltip"
-                                    data-placement="right">预览</button><br/><br/>
+                                    data-placement="left" style="display: none;">预览</button><br/><br/>
                             <button class="btn btn-default" type="button" name="add" id="add"> >> </button><br/><br/>
                             <button class="btn btn-default" type="button" name="remove" id="remove"> << </button><br/><br/>
                             <button class="btn btn-success btn-sm" type="button" name="addall" id="addall">全选</button><br/><br/>
@@ -739,7 +727,9 @@
                 </table>
             </div>
         </div>
+
     </div>
+
 
 
 
