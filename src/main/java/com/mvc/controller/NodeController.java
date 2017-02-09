@@ -72,6 +72,8 @@ public class NodeController {
             dialogNode.setConnectedNodeStr(getConnectedNode(nodeId));
             ret.add(dialogNode);
         });
+        DialogNodeComparator nodeComparator = new DialogNodeComparator();
+        Collections.sort(ret, nodeComparator);
         return ret;
     }
 
