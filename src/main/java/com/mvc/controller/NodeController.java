@@ -68,7 +68,8 @@ public class NodeController {
         String topic = nodeService.getTopicById(topicId);
         nodeList.forEach(nodeId -> {
             String content = nodeService.getNodeContent(nodeId);
-            DialogNode dialogNode = new DialogNode(nodeId, topic, content, isConnected(nodeId));
+            List<Integer> connList = nodeService.getConnectedNode(nodeId);
+            DialogNode dialogNode = new DialogNode(nodeId, topic, content, !connList.isEmpty());
             dialogNode.setConnectedNodeStr(getConnectedNode(nodeId));
             ret.add(dialogNode);
         });
@@ -278,10 +279,6 @@ public class NodeController {
 //        }
 //    }
 
-    public boolean isConnected(int nodeId){
-        List<Integer> connList = nodeService.getConnectedNode(nodeId);
-        return !connList.isEmpty();
-    }
 
     private DialogNode createDialogNodeByNodeId(int nodeId){
         String content = nodeService.getNodeContent(nodeId);

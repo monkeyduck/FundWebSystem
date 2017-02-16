@@ -339,7 +339,8 @@
             $.ajax({
                 type: "POST",
                 url: 'saveRank',
-                data: "options=" + result
+                data: "options=" + result,
+                async: false
             });
             var treeId = document.getElementById("tree-id").innerText;
             showDialogTree(treeId);

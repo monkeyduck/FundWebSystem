@@ -81,8 +81,7 @@ public class DialogNode {
 
     public void setConnectedNodeStr(List<DialogNode> connectedNodeList) {
         String str = "";
-        int n = 3;      // default show numbers
-        for (int i = 0; i < connectedNodeList.size() && i < n; ++i) {
+        for (int i = 0; i < connectedNodeList.size(); ++i) {
             str += connectedNodeList.get(i).getTopic() + " ";
         }
         this.connectedNodeStr = str;
