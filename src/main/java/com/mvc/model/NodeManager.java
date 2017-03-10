@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class NodeManager {
     private static final Logger logger = LoggerFactory.getLogger(NodeManager.class);
-    private static final String serverAddress = "http://123.56.73.108:50777";
+    private static final String serverAddress = "http://cbg.data.hixiaole.com:50777";
     private static final String relatedTopicPath = "/topicbase/relatedTopic?id=";
     private static HttpTookit httpTookit = new HttpTookit();
 

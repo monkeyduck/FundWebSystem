@@ -1,0 +1,13 @@
+batch
+*~
+.DS_Store
+Breakpoints_v2.xcbkptlist
+.idea
+download/src/META-INF
+download.jar
+MANIFEST.MF
+*.class
+*.iml
+*.jar
+frontendlog-1.0-SNAPSHOT.jar.original
+target
