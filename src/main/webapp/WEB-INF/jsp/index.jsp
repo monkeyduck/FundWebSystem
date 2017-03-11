@@ -184,7 +184,7 @@
                 $.ajax({
                     type: "GET",
                     url: "searchTargetTopic",
-                    data: "searchKey="+input,
+                    data: "searchKey="+encodeURI(input),
                     success: function (data) {
                         if (!isEmptyObject(data)) {
                             var title = showPreview(data.nodeId);
