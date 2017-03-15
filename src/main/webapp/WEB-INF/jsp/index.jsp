@@ -180,23 +180,28 @@
             });
 
             $("#btn-addNode").click(function () {
-                var input = document.getElementById("btn-addNode-input").value;
-                $.ajax({
-                    type: "GET",
-                    url: "searchTargetTopic",
-                    data: "searchKey="+encodeURI(input),
-                    success: function (data) {
-                        if (!isEmptyObject(data)) {
-                            var title = showPreview(data.nodeId);
-                            var result = "<option title='" + title + "' value=\"" + data.nodeId +"\">" + data.topic + "</option>";
-                            $("#s1").append(result);
-                            $("#btn-addNode-input").html("");
-                        } else{
-                            alert("不存在该节点: " + input);
-                        }
+                var input = document.getElementsByName("checkbox");
+                for (k in input) {
+                    if (input[k].checked) {
+                        var val = input[k].value;
+                        $.ajax({
+                            type: "GET",
+                            url: "searchTargetTopic",
+                            data: "searchKey="+encodeURI(val),
+                            success: function (data) {
+                                if (!isEmptyObject(data)) {
+                                    var title = showPreview(data.nodeId);
+                                    var result = "<option title='" + title + "' value=\"" + data.nodeId +"\">" + data.topic + "</option>";
+                                    $("#s1").append(result);
+                                } else{
+                                    alert("不存在该节点: " + val);
+                                }
+                            }
+                        });
                     }
-                });
+                }
                 document.getElementById("btn-addNode-input").value = '';
+                $("#hint_addTopic").html("");
             });
 
         });
@@ -465,6 +470,32 @@
             }
         }
 
+        function showCheckBox(wordid) {
+            var wordText = getObjectById(wordid).value;
+            if(wordText != "") {
+                var data = getResultData(wordText.trim());
+                $("#hint_addTopic").html("");
+                var checkbox = "";
+                for (var i = 0; i < data.length; i++) {
+                    var d = data[i];
+                    checkbox += "<div class='checkbox'><label><input type='checkbox' name='checkbox' value='"+d+"'>" + d +"</label></div>";
+                }
+                $("#hint_addTopic").html(checkbox);
+            }
+        }
+
+        function onCheckBox(event, wordid, autoid) {
+            var myEvent = event || window.event;
+            var keyCode = myEvent.keyCode;
+            var oldWord = getObjectById(autoid).value;
+            if((keyCode >= 65 && keyCode <= 90) || keyCode == 8 || keyCode == 46) {// 字母,退格或删除键
+                showCheckBox(wordid);
+            }
+            if(getObjectById(wordid).value != oldWord) {
+                showCheckBox(wordid);
+            }
+        }
+
         function getObjectById(id) {
             return document.getElementById(id);
         }
@@ -685,7 +716,7 @@
                                 <div class="input-group">
                                     <input id="btn-addNode-input" type="text" class="form-control input-sm"
                                            placeholder="输入要关联的节点..."
-                                           onkeyup="onKeyUp(event, 'btn-addNode-input', 'hint_addTopic')" />
+                                           onkeyup="onCheckBox(event, 'btn-addNode-input', 'hint_addTopic')" />
                                 <span class="input-group-btn">
                                     <button class="btn btn-success btn-sm" id="btn-addNode">Add</button>
                                 </span>
