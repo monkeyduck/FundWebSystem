@@ -4,6 +4,8 @@ import com.mvc.model.*;
 import com.mvc.service.NodeService;
 import com.utils.Utils;
 import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +21,7 @@ import java.util.*;
 @Controller
 public class NodeController {
 
+    private static Logger logger = LoggerFactory.getLogger(NodeController.class);
     private static final int categoryNum = 3;
     private static List<String> keyList = new ArrayList<>();
     private static List<String> categoryList = new ArrayList<>();
@@ -141,7 +144,10 @@ public class NodeController {
         List<Integer> connList = nodeService.getConnectedNode(id);
         List<DialogNode> ret = new ArrayList<>();
         connList.forEach(nodeId -> {
-            ret.add(createDialogNodeByNodeId(nodeId));
+            DialogNode dn = createDialogNodeByNodeId(nodeId);
+            if (dn.getNodeId() != null){
+                ret.add(createDialogNodeByNodeId(nodeId));
+            }
         });
         return ret;
     }
@@ -295,8 +301,14 @@ public class NodeController {
 
     private DialogNode createDialogNodeByNodeId(int nodeId){
         String content = nodeService.getNodeContent(nodeId);
-        int topicId = nodeService.getTopicIdByNodeId(nodeId);
-        String topic = nodeService.getTopicById(topicId);
+        Integer topicId;
+        String topic = "";
+        try {
+             topicId = nodeService.getTopicIdByNodeId(nodeId);
+             topic = nodeService.getTopicById(topicId);
+        }catch (Exception e){
+            logger.info("error id is"+nodeId);
+        }
         return new DialogNode(nodeId, topic, content);
     }
 

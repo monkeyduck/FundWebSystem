@@ -6,7 +6,7 @@ import java.util.List;
  * Created by llc on 16/10/25.
  */
 public class DialogNode {
-    private int nodeId;
+    private Integer nodeId;
     private int topicId;
     private String topic;
     private boolean isLeaf;
@@ -21,13 +21,13 @@ public class DialogNode {
         this.hasConnect = hasConnect;
     }
 
-    public DialogNode(int nodeId, String topic, String content){
+    public DialogNode(Integer nodeId, String topic, String content){
         this.nodeId = nodeId;
         this.topic = topic;
         this.content = content;
     }
 
-    public int getNodeId() {
+    public Integer getNodeId() {
         return nodeId;
     }
 
