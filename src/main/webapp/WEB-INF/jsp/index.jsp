@@ -54,8 +54,8 @@
 
     <script>
         leafNodeList = new Array();
-        jQuery.noConflict();
-        jQuery(document).ready(function ( $ ) {
+//        jQuery.noConflict();
+        jQuery(document).ready(function () {
             // 如果指定了话题id, 那么直接初始化话题节点列表
             var topic_id = "${topicId}";
             if (!isEmptyObject(topic_id)) {
@@ -775,6 +775,8 @@
 
 <%--<!-- Custom Theme JavaScript -->--%>
 <%--<script src="/resources/sbadmin/dist/js/sb-admin-2.js"></script>--%>
+<script>
 
+</script>
 </body>
 </html>
