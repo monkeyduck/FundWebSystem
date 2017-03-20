@@ -5,20 +5,39 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 /**
  * Created by llc on 16/12/19.
  */
+@Configuration
 public class NodeManager {
     private static final Logger logger = LoggerFactory.getLogger(NodeManager.class);
-    private static final String serverAddress = "http://cbg.data.hixiaole.com:50777";
     private static final String relatedTopicPath = "/topicbase/relatedTopic?id=";
     private static HttpTookit httpTookit = new HttpTookit();
 
-    public static List<Integer> getCandidateNodeList(int nodeId) {
-        String url = serverAddress + relatedTopicPath + nodeId;
+    @Autowired
+    private Environment environment;
+
+    private String serverAddress() {
+        if (environment.acceptsProfiles("alpha")){
+            return "http://cbg.data.zixiaole.com:50777";
+        }
+        if (environment.acceptsProfiles("online")){
+            return "http://cbg.data.zixiaole.com:50777";
+        }
+        return "http://localhost:50777";
+    }
+
+    public List<Integer> getCandidateNodeList(int nodeId) {
+        String url = serverAddress() + relatedTopicPath + nodeId;
         List<Integer> candidateList = new ArrayList<>();
         try {
             String response = httpTookit.sendGet(url).toString();

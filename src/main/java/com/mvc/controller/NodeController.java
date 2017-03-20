@@ -6,6 +6,7 @@ import com.utils.Utils;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,9 +27,16 @@ public class NodeController {
     private static List<String> keyList = new ArrayList<>();
     private static List<String> categoryList = new ArrayList<>();
     private Map<Integer, List<Integer>> sameLeafIdMap = new HashMap<>();
+    private NodeManager manager;
 
     @Resource(name="NodeService")
     private NodeService nodeService;
+
+    @Autowired
+    public void setManager(NodeManager nodeManager){
+        this.manager = nodeManager;
+    }
+
 
     @RequestMapping("graph")
     public ModelAndView graph(){
@@ -122,7 +130,7 @@ public class NodeController {
     public List<DialogNode> candidateNode(@RequestParam("id") int id){
         List<DialogNode> ret = new ArrayList<>();
         List<Integer> candList = new ArrayList<>();
-        List<Integer> topicIdList = NodeManager.getCandidateNodeList(id);
+        List<Integer> topicIdList = manager.getCandidateNodeList(id);
         for (int topicId: topicIdList) {
             int nodeIdCan = nodeService.getRootIdByTopicId(topicId);
             candList.add(nodeIdCan);
