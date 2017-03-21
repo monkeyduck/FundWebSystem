@@ -17,6 +17,8 @@ public interface NodeDao {
 
     List<DTopic> getAllTopics();
 
+    List<DTopic> getTopicByLikeKey(String searchKey);
+
     List<Integer> getLeafNodesByTopicId(int topicId);
 
     String getTopicById(int topicId);
@@ -31,7 +33,7 @@ public interface NodeDao {
 
     int getTopicIdByNodeId(int nodeId);
 
-    int getRootIdByTopicId(int topicId);
+    Integer getRootIdByTopicId(int topicId);
 
     void clearRelationBySrcId(int srcId);
 
