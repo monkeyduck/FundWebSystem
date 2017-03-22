@@ -76,6 +76,7 @@ public class NodeController {
         mv.addObject("allTopics", data);
         if (topicId > 0) {
             mv.addObject("topicId", topicId);
+            mv.addObject("rootId",nodeService.getRootIdByTopicId(topicId));
         }
         return mv;
     }

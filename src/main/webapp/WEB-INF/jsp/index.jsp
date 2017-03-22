@@ -55,305 +55,6 @@
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <script>
-        leafNodeList = new Array();
-        //        jQuery.noConflict();
-        jQuery(document).ready(function () {
-            // 如果指定了话题id, 那么直接初始化话题节点列表
-            var topic_id = "${topicId}";
-            // 异步初始化类别列表,避免加载时间过长
-
-            $("#s1 option:first,#s2 option:first").attr("selected", true);
-
-
-        });
-
-
-
-        function searchTopic(key) {
-            getObjectById("hint_searchTopic").style.display = 'none';
-            if (!arguments[0]) key = document.getElementById("text_searchTopic").value;
-            $.ajax({
-                type: "GET",
-                url: "searchTopic",
-                data: "searchKey=" + key,
-                success: function (data) {
-                    var result = "";
-                    $("#treeList").html("");
-                    $.each(data, function (i, item) {
-                        result += ("<li><a href='#topicId" + item.id + "' onclick=\"showDialogTree(" + item.id + ")\">"
-                        + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
-                    });
-                    $("#treeList").html(result);
-                }
-            });
-        }
-
-        function showDialogTree(treeId) {
-            $("#s1").html("");
-            $("#s2").html("");
-            $.ajax({
-                type: "GET",
-                url: "getLeafNodesByTopicId",
-                data: "id=" + treeId,
-                success: function (data) {
-                    var topic = "";
-                    leafNodeList = [];
-                    $.each(data, function (i, item) {
-                        topic = item.topic;
-                        var conn = (item.hasConnect) ? "<span style='color:green'>已关联</span>" : "<span style='color:red'>未关联</span>";
-                        var cont = "<a href='#' class='list-group-item' id='leafNode" + item.nodeId + "' onclick='getCandidates(" + item.nodeId +
-                            ")'><span class='list-group-item-heading'>" + conn + " " + item.connectedNodeStr + "</span><p class='list-group-item-text text-muted small'>" + item.content + "</p></a>";
-                        leafNodeList.push(cont);
-
-                    });
-                    $("#tree-title").html(topic);
-                    $("#tree-id").html(treeId);
-                    showLeafNodeList(leafNodeList);
-                }
-            });
-        }
-
-        function showLeafNodeList(list) {
-            var content = "";
-            for (var i = 0; i < list.length; i++) {
-                content += list[i];
-            }
-            $("#leafNodePanel").html(content);
-        }
-
-        var allData = "${allTopics}";
-        var wordid = "text_searchTopic";
-        var autoid = "hint_searchTopic";
-        //词组分割：,
-        var datas = allData.split(",");
-        datas = datas.sort();
-        datas = dislodgeRepeat(datas);
-        //高亮的序号--第一个word的序号（ID）是0
-        var highlightindex = -1;
-        initHint("text_searchTopic", "hint_searchTopic");
-        initHint("btn-addNode-input", "hint_addTopic");
-        function initHint(wordid, autoid) {
-            var wordInput = getObjectById(autoid);
-            // 隐藏自动补全框,并定义css属性
-            if (wordInput != null) {
-                wordInput.style.position = "absolute";
-                wordInput.style.border = "0px gray solid";
-                wordInput.style.top = wordInput.offsetTop + wordInput.offserHeight + 5 + "px";
-                wordInput.style.left = wordInput.offserLeft + "px";
-                wordInput.style.width = getObjectById(wordid).offsetWidth + -1 + "px";
-            }
-        }
-        // 给文本框添加键盘按下并弹起的事件
-        function onKeyUp(event, wordid, autoid) {
-            var myEvent = event || window.event;
-            var keyCode = myEvent.keyCode;
-            var oldWord = getObjectById(autoid).value;
-            if ((keyCode >= 65 && keyCode <= 90) || keyCode == 8 || keyCode == 46) {// 字母,退格或删除键
-                showAutoWord(wordid, autoid);
-            } else if (keyCode == 38 || keyCode == 40) {// 向上,向下
-                var childNodes = getObjectById(autoid).childNodes;
-                for (var j = 0; j < childNodes.length; j++) {
-                    childNodes[j].style.backgroundColor = "white";
-                }
-                if (highlightindex > -1 && highlightindex < childNodes.length) {
-                    if (keyCode == 38) {
-                        highlightindex = highlightindex <= 0 ? 0 : --highlightindex;
-                    } else if (keyCode == 40) {
-                        highlightindex = highlightindex >= childNodes.length - 1 ? highlightindex : ++highlightindex;
-                    }
-                } else if (highlightindex == -1) {
-                    if (keyCode == 38) {
-                        highlightindex = childNodes.length - 1;
-                    } else if (keyCode == 40) {
-                        highlightindex = 0;
-                    }
-                } else {
-                    highlightindex = -1;
-                }
-                childNodes[highlightindex].style.backgroundColor = "gray";
-            } else if (keyCode == 13 && wordid == 'text_searchTopic') { // 回车键 && 搜索话题
-                if (highlightindex != -1) {
-                    var wordText = getObjectById(wordid).value;
-                    var data = getResultData(wordText.trim());
-                    var keyWord = data[highlightindex];
-                    searchTopic(keyWord);
-                    getObjectById(wordid).value = keyWord;
-                } else {
-                    searchTopic();
-                }
-                getObjectById(autoid).style.border = "0px black solid";
-                getObjectById(autoid).innerHTML = "";
-                highlightindex = -1;
-            } else if (getObjectById(wordid).value != oldWord) {
-                showAutoWord(wordid, autoid);
-            }
-        }
-        //下拉框提示
-        function showAutoWord(wordid, autoid) {
-            getObjectById(autoid).style.display = 'block';
-            getObjectById(autoid).style.border = "0px black solid";
-            var autoNode = getObjectById(autoid);
-            var wordText = getObjectById(wordid).value;
-            oldWord = wordText;
-            if (wordText != "") {
-                var data = getResultData(wordText.trim());
-                autoNode.innerHTML = "";
-                //初始化提示数据
-                if (data != null && data.length > 0) {
-                    getObjectById(autoid).style.border = "1px black solid";
-                }
-                for (var i = 0; i < data.length; i++) {
-                    var wordNode = data[i];
-                    var newDivNode = createElement("div");
-                    newDivNode.id = i;
-                    newDivNode.appendChild(document.createTextNode(wordNode));
-                    autoNode.appendChild(newDivNode);
-                    // 光标进入
-                    newDivNode.onmouseover = function () {
-                        var childNodes = getObjectById(autoid).childNodes;
-                        for (var j = 0; j < childNodes.length; j++) {
-                            childNodes[j].style.backgroundColor = "white";
-                        }
-                        this.style.backgroundColor = "gray";
-                        highlightindex = this.id;
-                    };
-                    //光标移出
-                    newDivNode.onmouseout = function () {
-                        this.style.backgroundColor = "white";
-                    };
-                    // 光标点击
-                    newDivNode.onclick = function () {
-                        var comText = this.innerHTML;
-                        getObjectById(autoid).innerHTML = "";
-                        highlightindex = -1;
-                        getObjectById(wordid).value = comText;
-                        getObjectById(autoid).style.border = "0px black solid";
-                        if (wordid == 'text_searchTopic') {
-                            searchTopic(comText);
-                        }
-                    };
-                }
-            } else {//输入框为""
-                autoNode.innerHTML = "";
-                highlightindex = -1;
-            }
-        }
-
-        function showCheckBox(wordid) {
-            var wordText = getObjectById(wordid).value;
-            if (wordText != "") {
-                var data = getResultData(wordText.trim());
-                $("#hint_addTopic").html("");
-                var checkbox = "";
-                for (var i = 0; i < data.length; i++) {
-                    var d = data[i];
-                    checkbox += "<div class='checkbox'><label><input type='checkbox' name='checkbox' value='" + d + "'>" + d + "</label></div>";
-                }
-                $("#hint_addTopic").html(checkbox);
-            }
-        }
-
-        function onCheckBox(event, wordid, autoid) {
-            var myEvent = event || window.event;
-            var keyCode = myEvent.keyCode;
-            var oldWord = getObjectById(autoid).value;
-            if ((keyCode >= 65 && keyCode <= 90) || keyCode == 8 || keyCode == 46) {// 字母,退格或删除键
-                showCheckBox(wordid);
-            }
-            if (getObjectById(wordid).value != oldWord) {
-                showCheckBox(wordid);
-            }
-        }
-
-        function getObjectById(id) {
-            return document.getElementById(id);
-        }
-        //根据输入词语，换回匹配的词语组
-        function getResultData(wordText) {
-            var data = new Array();
-            for (var i = 0; i < datas.length; i++) {
-                var index = datas[i].indexOf(wordText);
-                if (index != -1) {
-                    data.push(datas[i]);
-                }
-            }
-            return data;
-        }
-        function createElement(tagName) {
-            return document.createElement(tagName);
-        }
-        //去重
-        function dislodgeRepeat(datas) {
-            var newDatas = new Array();
-            for (var i = 1; i < datas.length; i++) {
-                if (datas[i] != datas[i - 1]) {
-                    newDatas.push(datas[i]);
-                }
-            }
-            return newDatas;
-        }
-        // 选中一个类别,根据类别id显示所有文案
-        function getTopicsByCategoryId(category_id) {
-            $.ajax({
-                type: "GET",
-                url: "getTopicsByCategoryIdOrdered",
-                data: "categoryId=" + category_id,
-                success: function (data) {
-                    var result = "";
-                    $("#treeList").html("");
-                    $.each(data, function (i, item) {
-                        result += ("<li><a href='#topicId" + item.id + "' id='dialogTree" + item.id + "' onclick=\"showDialogTree(" + item.id + ")\">"
-                        + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
-                    });
-                    $("#treeList").html(result);
-                }
-            });
-        }
-        // 搜索类别
-        function searchCategory() {
-            var category = document.getElementById("input_searchCategory").value;
-            $.ajax({
-                type: "GET",
-                url: "getTopicsByCategoryName",
-                data: "categoryName=" + category,
-                success: function (data) {
-                    var result = "";
-                    $("#treeList").html("");
-                    $.each(data, function (i, item) {
-                        result += ("<li><a href='#topicId" + item.id + "' onclick=\"showDialogTree(" + item.id + ")\">"
-                        + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
-                    });
-                    $("#treeList").html(result);
-                }
-            });
-        }
-
-        // 列出所有类别
-        function listAllCategories() {
-            $.ajax({
-                type: "GET",
-                url: "listCategories",
-                data: "num=20",
-                success: function (data) {
-                    var result = "";
-                    $("#dropdown_categories").html("");
-                    $.each(data, function (i, item) {
-                        result += "<li><a href=\"#\" onclick=\"getTopicsByCategoryId(" + item.categoryId + ")\">"
-                            + "<div><p><strong>" + item.category + "</strong><span class=\"pull-right text-muted\">"
-                            + item.completeRate + "% Complete</span> </p> <div class=\"progress progress-striped active\">"
-                            + "<div class=\"progress-bar progress-bar-" + item.infoColor + " role=\"progressbar\" aria-valuenow="
-                            + item.completeRate + " aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
-                            + item.completeRate + "%\"> <span class=\"sr-only\">" + item.completeRate
-                            + "% Complete</span> </div> </div> </div> </a> </li> <li class=\"divider\"></li>";
-
-                    });
-                    $("#dropdown_categories").html(result);
-                }
-            });
-        }
-
-    </script>
 </head>
 <body>
 <div id="wrapper">
@@ -382,51 +83,16 @@
                 </a>
                 <ul class="dropdown-menu dropdown-user">
                     <li><a href="<%=basePath%>graph"><i class="fa fa-bar-chart-o fa-fw"></i>关联图</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
-                    </li>
-                    <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
-                    </li>
-                    <li class="divider"></li>
-                    <li><a href="#"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
-                    </li>
                 </ul>
                 <!-- /.dropdown-user -->
             </li>
             <!-- /.dropdown -->
-            <li>
-                <div class="search-container">
-                    <form class="form-inline float-sm-right">
-                        <input class="form-control" id="input_searchCategory" type="text" placeholder="搜索类别..">
-                        <%--<span class="input-group-btn">--%>
-                        <button class="btn btn-default" type="button" id="btn_searchCategory"
-                                onclick="searchCategory()">
-                            <i class="fa fa-search"></i></button>
-                        <%--</span>--%>
-                        <%--<button class="btn btn-outline-success" type="submit">Search</button>--%>
-                    </form>
-                </div>
-            </li>
         </ul>
         <!-- /.navbar-top-links -->
 
         <div class="navbar-default sidebar" role="navigation">
             <div class="sidebar-nav navbar-collapse">
                 <ul class="nav" id="side-menu">
-                    <li class="sidebar-search">
-                        <div class="input-group custom-search-form">
-                            <input type="text" class="form-control" id="text_searchTopic" placeholder="搜索文案"
-                                   onkeyup="onKeyUp(event, 'text_searchTopic', 'hint_searchTopic')">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" id="btn_searchTopic"
-                                        onclick="searchTopic()">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </span>
-                        </div>
-                        <div id="hint_searchTopic" style="max-height: 200px;overflow-y: auto;display: none;"></div>
-                        <!-- /input-group -->
-                    </li>
                 </ul>
                 <ul class="nav" id="treeList" style="max-height: 520px; overflow-y: auto;">
 
@@ -588,6 +254,7 @@
         el: '#wrapper',
         data: {
             topicId:${topicId},
+            rootId:${rootId},
             treeTitle: '',
             nodeInfoList: [],
             srcId: -1,
@@ -607,6 +274,12 @@
             }
         },
         methods: {
+            notInSet:function () {
+                var set = R.flatten(arguments);
+                return R.append(this.rootId,R.map(function (i) {
+                    return i.nodeId;
+                },set));
+            },
             getCandidates: function (nodeId, index) {
                 this.srcId = nodeId;
                 var nodeList = vm.nodeInfoList;
@@ -631,10 +304,8 @@
                 }).then(function (data) {
                     console.log('candidate:', data);
                     vm.recommendList = R.reject(function (r) {
-                        return R.contains(r.nodeId, R.map(function (c) {
-                            return c.nodeId;
-                        }, vm.connectedList))
-                    }, data)
+                        return R.contains(r.nodeId, vm.notInSet(vm.connectedList))
+                    }, data);
                 })
             },
             move: function (selected, fromKey, toKey) {
@@ -643,8 +314,13 @@
                     var to = vm[toKey];
                     var predict = this.movePrediction(selected);
                     var mvList = R.filter(predict, from);
+                    var toIds = to;
+                    mvList = R.reject(function (r) {
+                        return R.contains(r.nodeId, toIds);
+                    }, mvList);
                     vm[toKey] = R.concat(to, mvList);
                     vm[fromKey] = R.reject(predict, from);
+
                 }
             },
             moveAll: function (fromKey, toKey) {
@@ -682,10 +358,7 @@
                     alert('请先选择一个节点');
                     return;
                 }
-                var result = R.concat([this.srcId],
-                    R.map(function (c) {
-                        return c.nodeId
-                    }, this.connectedList));
+                var result = R.concat([this.srcId],this.notInSet(this.connectedList));
                 $.ajax({
                     type: "POST",
                     url: 'saveRank',
@@ -702,27 +375,27 @@
                     data: 'searchKey=' + this.searchTopicByKey
                 }).done(function (data) {
                     console.log('searchResult:', data);
-                    vm.searchTopicResult = data;
+                    vm.searchTopicResult = R.reject(function (r) {
+                        return R.contains(r.nodeId,vm.notInSet(vm.connectedList,vm.recommendList))
+                    },data);
                 })
             }, 500),
             addToRecommend: function () {
                 var checked = R.filter(function (s) {
                     return s.checked
                 }, this.searchTopicResult);
-                var nodeSet = R.map(function (r) {
-                    return r.nodeId;
-                },this.recommendList);
+                var nodeSet = this.notInSet(this.recommendList);
                 var notInRecommend = R.reject(function (c) {
-                    return R.contains(c.nodeId,nodeSet);
-                },checked);
-                if (notInRecommend.length < 1){
+                    return R.contains(c.nodeId, nodeSet);
+                }, checked);
+                if (notInRecommend.length < 1) {
                     alert('选择的结果已经包含在左边了');
                     return;
                 }
                 var tmp = R.forEach(function (n) {
                     delete n.checked;
-                },notInRecommend);
-                this.recommendList = R.concat(this.recommendList,tmp);
+                }, notInRecommend);
+                this.recommendList = R.concat(this.recommendList, tmp);
             }
         }
     });
@@ -739,6 +412,9 @@
                 console.log(data);
                 vm.nodeInfoList = data;
                 vm.treeTitle = data[0]['topic'];
+                vm.connectedList = [];
+                vm.recommendList = [];
+                vm.searchTopicByKey = '';
             }
         });
     }
