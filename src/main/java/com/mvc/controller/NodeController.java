@@ -27,7 +27,6 @@ public class NodeController {
     private static final int categoryNum = 3;
     private static List<String> keyList = new ArrayList<>();
     private static List<String> categoryList = new ArrayList<>();
-    private Map<Integer, List<Integer>> sameLeafIdMap = new HashMap<>();
     private NodeManager manager;
 
     @Resource(name = "NodeService")
@@ -76,7 +75,7 @@ public class NodeController {
         mv.addObject("allTopics", data);
         if (topicId > 0) {
             mv.addObject("topicId", topicId);
-            mv.addObject("rootId",nodeService.getRootIdByTopicId(topicId));
+            mv.addObject("rootId", nodeService.getRootIdByTopicId(topicId));
         }
         return mv;
     }
@@ -88,21 +87,12 @@ public class NodeController {
         List<DialogNode> ret = new ArrayList<>();
         List<Integer> nodeList = nodeService.getLeafNodesByTopicId(topicId);
         String topic = nodeService.getTopicById(topicId);
-        Map<String, Integer> contentMap = new HashMap<>();
         nodeList.forEach(nodeId -> {
             String content = nodeService.getNodeContent(nodeId);
-            if (!contentMap.containsKey(content)) {
-                contentMap.put(content, nodeId);
-                sameLeafIdMap.put(nodeId, new ArrayList<>());
-                sameLeafIdMap.get(nodeId).add(nodeId);
-                List<Integer> connList = nodeService.getConnectedNode(nodeId);
-                DialogNode dialogNode = new DialogNode(nodeId, topic, content, !connList.isEmpty());
-                dialogNode.setConnectedNodeStr(getConnectedNode(nodeId));
-                ret.add(dialogNode);
-            } else {
-                sameLeafIdMap.get(contentMap.get(content)).add(nodeId);
-            }
-
+            List<Integer> connList = nodeService.getConnectedNode(nodeId);
+            DialogNode dialogNode = new DialogNode(nodeId, topic, content, !connList.isEmpty());
+            dialogNode.setConnectedNodeStr(getConnectedNode(nodeId));
+            ret.add(dialogNode);
         });
         DialogNodeComparator nodeComparator = new DialogNodeComparator();
         Collections.sort(ret, nodeComparator);
@@ -164,7 +154,10 @@ public class NodeController {
         List<Integer> candList = new ArrayList<>();
         List<Integer> topicIdList = manager.getCandidateNodeList(id);
         for (int topicId : topicIdList) {
-            int nodeIdCan = nodeService.getRootIdByTopicId(topicId);
+            Integer nodeIdCan = nodeService.getRootIdByTopicId(topicId);
+            if (nodeIdCan == null){
+                continue;
+            }
             candList.add(nodeIdCan);
         }
         List<Integer> connectedList = nodeService.getConnectedNode(id);
@@ -195,15 +188,14 @@ public class NodeController {
     @RequestMapping("saveRank")
     @ResponseBody
     public void saveRank(@RequestParam("options") String ids) {
+        logger.info("ids is:"+ids);
         String[] idList = ids.split(",");
-        int nodeId = Integer.parseInt(idList[0]);
-        for (int srcId : sameLeafIdMap.get(nodeId)) {
-            nodeService.clearRelationBySrcId(srcId);
-            for (int i = 1; i < idList.length; ++i) {
-                int id = Integer.parseInt(idList[i]);
-                NodeRelation relation = new NodeRelation(srcId, id, i);
-                nodeService.insertRank(relation);
-            }
+        int srcId = Integer.parseInt(idList[0]);
+        nodeService.clearRelationBySrcId(srcId);
+        for (int i = 1; i < idList.length; ++i){
+            int id = Integer.parseInt(idList[i]);
+            NodeRelation relation = new NodeRelation(srcId, id, i);
+            nodeService.insertRank(relation);
         }
 
     }

@@ -358,7 +358,11 @@
                     alert('请先选择一个节点');
                     return;
                 }
-                var result = R.concat([this.srcId],this.notInSet(this.connectedList));
+                var result = R.concat([this.srcId],R.map(function (r) {
+                    return r.nodeId;
+                },R.reject(function (c) {
+                    return R.contains(c.nodeId,vm.notInSet());
+                },this.connectedList)));
                 $.ajax({
                     type: "POST",
                     url: 'saveRank',
