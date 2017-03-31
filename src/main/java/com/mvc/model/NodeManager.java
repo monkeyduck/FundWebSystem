@@ -31,7 +31,7 @@ public class NodeManager {
             return "http://cbg.data.zixiaole.com:50777";
         }
         if (environment.acceptsProfiles("online")){
-            return "http://cbg.data.zixiaole.com:50777";
+            return "http://cbg.data.hixiaole.com:50777";
         }
         return "http://localhost:50777";
     }
