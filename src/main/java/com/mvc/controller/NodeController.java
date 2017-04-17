@@ -7,6 +7,7 @@ import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,20 +27,27 @@ public class NodeController {
     private static final int categoryNum = 3;
     private static List<String> keyList = new ArrayList<>();
     private static List<String> categoryList = new ArrayList<>();
-    private Map<Integer, List<Integer>> sameLeafIdMap = new HashMap<>();
     private NodeManager manager;
 
-    @Resource(name="NodeService")
+    @Resource(name = "NodeService")
     private NodeService nodeService;
 
     @Autowired
-    public void setManager(NodeManager nodeManager){
+    public void setManager(NodeManager nodeManager) {
         this.manager = nodeManager;
     }
 
+    @Bean(name = "all")
+    public List<DTopic> allTopic() {
+        return nodeService.getAllTopics();
+    }
+
+    @Resource(name = "all")
+    private List<DTopic> allTopic;
+
 
     @RequestMapping("graph")
-    public ModelAndView graph(){
+    public ModelAndView graph() {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("graph");
         List<Category> categoryInfoList = new ArrayList<>();
@@ -48,7 +56,7 @@ public class NodeController {
             categoryList = nodeService.getCategories();
         }
         for (int i = 0; i <= categoryNum; ++i) {
-            int completeRate = (int)(calCompleteDegree(i) * 100);
+            int completeRate = (int) (calCompleteDegree(i) * 100);
             Category category = new Category(i, categoryList.get(i), completeRate);
             categoryInfoList.add(category);
         }
@@ -57,7 +65,7 @@ public class NodeController {
     }
 
     @RequestMapping("index")
-    public ModelAndView index(@RequestParam(value = "topicId", defaultValue = "-1") int topicId){
+    public ModelAndView index(@RequestParam(value = "topicId", defaultValue = "-1") int topicId) {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("index");
         keyList = nodeService.getTopicKeys();
@@ -67,6 +75,7 @@ public class NodeController {
         mv.addObject("allTopics", data);
         if (topicId > 0) {
             mv.addObject("topicId", topicId);
+            mv.addObject("rootId", nodeService.getRootIdByTopicId(topicId));
         }
         return mv;
     }
@@ -74,25 +83,16 @@ public class NodeController {
 
     @RequestMapping("getLeafNodesByTopicId")
     @ResponseBody
-    public List<DialogNode> getLeafNodesByTopicId(@RequestParam("id") int topicId){
+    public List<DialogNode> getLeafNodesByTopicId(@RequestParam("id") int topicId) {
         List<DialogNode> ret = new ArrayList<>();
         List<Integer> nodeList = nodeService.getLeafNodesByTopicId(topicId);
         String topic = nodeService.getTopicById(topicId);
-        Map<String, Integer> contentMap = new HashMap<>();
         nodeList.forEach(nodeId -> {
             String content = nodeService.getNodeContent(nodeId);
-            if (!contentMap.containsKey(content)) {
-                contentMap.put(content, nodeId);
-                sameLeafIdMap.put(nodeId, new ArrayList<>());
-                sameLeafIdMap.get(nodeId).add(nodeId);
-                List<Integer> connList = nodeService.getConnectedNode(nodeId);
-                DialogNode dialogNode = new DialogNode(nodeId, topic, content, !connList.isEmpty());
-                dialogNode.setConnectedNodeStr(getConnectedNode(nodeId));
-                ret.add(dialogNode);
-            } else {
-                sameLeafIdMap.get(contentMap.get(content)).add(nodeId);
-            }
-
+            List<Integer> connList = nodeService.getConnectedNode(nodeId);
+            DialogNode dialogNode = new DialogNode(nodeId, topic, content, !connList.isEmpty());
+            dialogNode.setConnectedNodeStr(getConnectedNode(nodeId));
+            ret.add(dialogNode);
         });
         DialogNodeComparator nodeComparator = new DialogNodeComparator();
         Collections.sort(ret, nodeComparator);
@@ -101,11 +101,11 @@ public class NodeController {
 
     @RequestMapping("searchTopic")
     @ResponseBody
-    public List<DTopic> searchTopic(@RequestParam("searchKey") String key){
+    public List<DTopic> searchTopic(@RequestParam("searchKey") String key) {
         List<DTopic> topicList = nodeService.getAllTopics();
         List<DTopic> searchList = new ArrayList<>();
         topicList.forEach(topic -> {
-            if (topic.getKey().contains(key)){
+            if (topic.getKey().contains(key)) {
                 searchList.add(topic);
             }
         });
@@ -114,7 +114,7 @@ public class NodeController {
 
     @RequestMapping("searchTargetTopic")
     @ResponseBody
-    public DialogNode searchTargetTopic(@RequestParam("searchKey") String key){
+    public DialogNode searchTargetTopic(@RequestParam("searchKey") String key) {
         List<DTopic> topicList = nodeService.getAllTopics();
         for (DTopic topic : topicList) {
             if (topic.getKey().equals(key)) {
@@ -125,14 +125,39 @@ public class NodeController {
         return null;
     }
 
+    //TODO: 搜索topic待优化
+    @RequestMapping("fuzzySearchTargetTopic")
+    @ResponseBody
+    public List<DialogNode> fuzzySearchTargetTopic(@RequestParam("searchKey") String key) {
+        long begin = System.currentTimeMillis();
+        if (key.equals("")) {
+            return new ArrayList<>();
+        }
+        List<DTopic> lDtopic = nodeService.getTopicByLikeKey(key);
+        List<DialogNode> dialogNodeList = new ArrayList<>();
+        for (DTopic topic : lDtopic) {
+            Integer nodeId = nodeService.getRootIdByTopicId(topic.getId());
+            if (nodeId == null) {
+                continue;
+            }
+            DialogNode dn = createDialogNodeByNodeId(nodeId);
+            dialogNodeList.add(dn);
+        }
+        logger.info((System.currentTimeMillis() - begin) + "");
+        return dialogNodeList;
+    }
+
     @RequestMapping("candidateNode")
     @ResponseBody
-    public List<DialogNode> candidateNode(@RequestParam("id") int id){
+    public List<DialogNode> candidateNode(@RequestParam("id") int id) {
         List<DialogNode> ret = new ArrayList<>();
         List<Integer> candList = new ArrayList<>();
         List<Integer> topicIdList = manager.getCandidateNodeList(id);
-        for (int topicId: topicIdList) {
-            int nodeIdCan = nodeService.getRootIdByTopicId(topicId);
+        for (int topicId : topicIdList) {
+            Integer nodeIdCan = nodeService.getRootIdByTopicId(topicId);
+            if (nodeIdCan == null){
+                continue;
+            }
             candList.add(nodeIdCan);
         }
         List<Integer> connectedList = nodeService.getConnectedNode(id);
@@ -148,12 +173,12 @@ public class NodeController {
 
     @RequestMapping("connectedNode")
     @ResponseBody
-    public List<DialogNode> getConnectedNode(@RequestParam("id") int id){
+    public List<DialogNode> getConnectedNode(@RequestParam("id") int id) {
         List<Integer> connList = nodeService.getConnectedNode(id);
         List<DialogNode> ret = new ArrayList<>();
         connList.forEach(nodeId -> {
             DialogNode dn = createDialogNodeByNodeId(nodeId);
-            if (dn.getNodeId() != null){
+            if (dn.getNodeId() != null) {
                 ret.add(createDialogNodeByNodeId(nodeId));
             }
         });
@@ -162,16 +187,15 @@ public class NodeController {
 
     @RequestMapping("saveRank")
     @ResponseBody
-    public void saveRank(@RequestParam("options") String ids){
+    public void saveRank(@RequestParam("options") String ids) {
+        logger.info("ids is:"+ids);
         String[] idList = ids.split(",");
-        int nodeId = Integer.parseInt(idList[0]);
-        for (int srcId: sameLeafIdMap.get(nodeId)) {
-            nodeService.clearRelationBySrcId(srcId);
-            for (int i = 1; i < idList.length; ++i){
-                int id = Integer.parseInt(idList[i]);
-                NodeRelation relation = new NodeRelation(srcId, id, i);
-                nodeService.insertRank(relation);
-            }
+        int srcId = Integer.parseInt(idList[0]);
+        nodeService.clearRelationBySrcId(srcId);
+        for (int i = 1; i < idList.length; ++i){
+            int id = Integer.parseInt(idList[i]);
+            NodeRelation relation = new NodeRelation(srcId, id, i);
+            nodeService.insertRank(relation);
         }
 
     }
@@ -200,9 +224,9 @@ public class NodeController {
         int iCateId = Integer.parseInt(categoryId);
         List<DTopic> topicListByCateId = nodeService.getTopicsByCategoryId(iCateId);
         List<DTopic> sortedTopicList = new ArrayList<>();
-        for (DTopic topic: topicListByCateId) {
+        for (DTopic topic : topicListByCateId) {
             float complete = calCompleteDegreeOfTopic(topic.getId());
-            topic.setComplete((int)(100 * complete));
+            topic.setComplete((int) (100 * complete));
             sortedTopicList.add(topic);
         }
         Collections.sort(sortedTopicList);
@@ -211,7 +235,7 @@ public class NodeController {
 
     @RequestMapping("getTopicsByCategoryName")
     @ResponseBody
-    public List<DTopic> getTopicsByCategoryName(@RequestParam("categoryName") String categoryName){
+    public List<DTopic> getTopicsByCategoryName(@RequestParam("categoryName") String categoryName) {
         List<DTopic> topicList = nodeService.getTopicsByCategoryName(categoryName);
         return topicList;
     }
@@ -222,7 +246,7 @@ public class NodeController {
         List<Category> categoryInfoList = new ArrayList<>();
         // category_id starts from 0
         for (int i = 0; i <= num; ++i) {
-            int completeRate = (int)(calCompleteDegree(i) * 100);
+            int completeRate = (int) (calCompleteDegree(i) * 100);
             Category category = new Category(i, categoryList.get(i), completeRate);
             categoryInfoList.add(category);
         }
@@ -247,14 +271,14 @@ public class NodeController {
         nodeIdSet.add(rootId);
 
         List<Integer> leafNodeList = nodeService.getLeafNodesByTopicId(topicId);
-        for (int nodeId: leafNodeList) {
+        for (int nodeId : leafNodeList) {
             if (!nodeIdSet.contains(nodeId)) {
                 links.add(new GraphLink(calGnodeId(rootId, nodeList), calGnodeId(nodeId, nodeList)));
                 nodes.add(new GraphNode(nodeId, nodeService.getNodeContent(nodeId),
                         calGraphCateByTopicId(topicId, cateList, gCateList), GraphNode.leafSize));
                 nodeIdSet.add(nodeId);
                 List<Integer> connectedNodeList = nodeService.getConnectedNode(nodeId);
-                for (int connId: connectedNodeList) {
+                for (int connId : connectedNodeList) {
                     if (!nodeIdSet.contains(connId)) {
                         int connTopicId = nodeService.getTopicIdByNodeId(connId);
                         nodes.add(new GraphNode(connId, nodeService.getNodeContent(connId),
@@ -307,15 +331,15 @@ public class NodeController {
 //    }
 
 
-    private DialogNode createDialogNodeByNodeId(int nodeId){
+    private DialogNode createDialogNodeByNodeId(int nodeId) {
         String content = nodeService.getNodeContent(nodeId);
         Integer topicId;
         String topic = "";
         try {
-             topicId = nodeService.getTopicIdByNodeId(nodeId);
-             topic = nodeService.getTopicById(topicId);
-        }catch (Exception e){
-            logger.info("error id is"+nodeId);
+            topicId = nodeService.getTopicIdByNodeId(nodeId);
+            topic = nodeService.getTopicById(topicId);
+        } catch (Exception e) {
+            logger.info("error id is" + nodeId);
         }
         return new DialogNode(nodeId, topic, content);
     }
@@ -338,6 +362,7 @@ public class NodeController {
 
     /**
      * 这种方法是用已关联叶子节点数/所有节点数, 快但是会有非叶子节点混入导致结果不能到100%
+     *
      * @param categoryId
      * @return
      */

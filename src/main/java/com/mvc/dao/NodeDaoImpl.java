@@ -38,6 +38,11 @@ public class NodeDaoImpl implements NodeDao {
     }
 
     @Override
+    public List<DTopic> getTopicByLikeKey(String searchKey) {
+        return sqlSession.selectList("getTopicByLikeKey");
+    }
+
+    @Override
     public List<Integer> getLeafNodesByTopicId(int topicId) {
         return sqlSession.selectList("getLeafNodesByTopicId");
     }
@@ -103,7 +108,7 @@ public class NodeDaoImpl implements NodeDao {
     }
 
     @Override
-    public int getRootIdByTopicId(int topicId) {
+    public Integer getRootIdByTopicId(int topicId) {
         return sqlSession.selectOne("getRootIdByTopicId");
     }
 
