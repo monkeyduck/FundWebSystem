@@ -1,5 +1,7 @@
 package com.mvc.model;
 
+import net.sf.json.JSONObject;
+
 /**
  * Created by llc on 16/11/16.
  */
@@ -63,5 +65,10 @@ public class DTopic implements Comparable<DTopic> {
     public int compareTo(DTopic o) {
         int complete = o.getComplete();
         return Integer.compare(this.complete, complete);
+    }
+
+    @Override
+    public String toString() {
+        return JSONObject.fromObject(this).toString();
     }
 }

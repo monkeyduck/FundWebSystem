@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <define name="PID" class="com.aibasis.logging.LogPID">
+        <propKey>PID</propKey>
+    </define>
+    <property name="LOG_PATH" value="${catalina.base}/logs/related"/>
+    <property name="LOG_FILE" value="log"/>
+    <include resource="logconfig/logdefault.xml"/>
+    <include resource="logconfig/console-appender.xml"/>
+    <include resource="logconfig/file-appender.xml"/>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ROLLING"/>
+    </root>
+</configuration>
+
+

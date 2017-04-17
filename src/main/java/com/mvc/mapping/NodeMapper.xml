@@ -27,6 +27,11 @@
         select `id`, `key` from t_topic;
     </select>
 
+    <select id="getTopicByLikeKey" resultMap="DTopicMap" parameterType="java.lang.String">
+        SELECT `id`, `key` FROM `t_topic`
+        WHERE `key` LIKE "%"#{searchKey}"%"
+    </select>
+
     <select id="getNodesByTopicId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
         select `t_dialog_node`.`id` from t_dialog_node where `topic_id`=#{topicId}
     </select>

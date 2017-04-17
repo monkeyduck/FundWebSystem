@@ -38,6 +38,11 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
+    public List<DTopic> getTopicByLikeKey(String searchKey) {
+        return nodeDao.getTopicByLikeKey(searchKey);
+    }
+
+    @Override
     public List<Integer> getLeafNodesByTopicId(int topicId) {
         return nodeDao.getLeafNodesByTopicId(topicId);
     }
@@ -113,7 +118,7 @@ public class NodeServiceImpl implements NodeService {
     }
 
     @Override
-    public int getRootIdByTopicId(int topicId) {
+    public Integer getRootIdByTopicId(int topicId) {
         return nodeDao.getRootIdByTopicId(topicId);
     }
 
