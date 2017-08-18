@@ -81,104 +81,6 @@
                 }
             });
 
-            $("#s1 option:first,#s2 option:first").attr("selected", true);
-
-            $("#s1").dblclick(function () {
-                var alloptions = $("#s1 option");
-                var so = $("#s1 option:selected");
-
-                so.get(so.length - 1).index == alloptions.length - 1 ? so.prev().attr("selected", true) : so.next().attr("selected", true);
-
-                $("#s2").append(so);
-            });
-
-            $("#s2").dblclick(function () {
-                var alloptions = $("#s2 option");
-                var so = $("#s2 option:selected");
-
-                so.get(so.length - 1).index == alloptions.length - 1 ? so.prev().attr("selected", true) : so.next().attr("selected", true);
-
-                $("#s1").append(so);
-            });
-
-            $("#add").click(function () {
-                var alloptions = $("#s1 option");
-                var so = $("#s1 option:selected");
-
-                so.get(so.length - 1).index == alloptions.length - 1 ? so.prev().attr("selected", true) : so.next().attr("selected", true);
-
-                $("#s2").append(so);
-            });
-
-            $("#remove").click(function () {
-                var alloptions = $("#s2 option");
-                var so = $("#s2 option:selected");
-
-                so.get(so.length - 1).index == alloptions.length - 1 ? so.prev().attr("selected", true) : so.next().attr("selected", true);
-
-                $("#s1").append(so);
-            });
-
-            $("#addall").click(function () {
-                $("#s2").append($("#s1 option").attr("selected", true));
-            });
-
-            $("#removeall").click(function () {
-                $("#s1").append($("#s2 option").attr("selected", true));
-            });
-
-            $("#s1up").click(function () {
-                var so = $("#s1 option:selected");
-                if (so.get(0).index != 0) {
-                    so.each(function () {
-                        $(this).prev().before($(this));
-                    });
-                }
-            });
-
-            $("#s1down").click(function () {
-                var alloptions = $("#s1 option");
-                var so = $("#s1 option:selected");
-
-                if (so.get(so.length - 1).index != alloptions.length - 1) {
-                    for (i = so.length - 1; i >= 0; i--) {
-                        var item = $(so.get(i));
-                        item.insertAfter(item.next());
-                    }
-                }
-            });
-
-            $("#s2up").click(function () {
-                var so = $("#s2 option:selected");
-                if (so.get(0).index != 0) {
-                    so.each(function () {
-                        $(this).prev().before($(this));
-                    });
-                }
-            });
-
-            $("#s2down").click(function () {
-                var alloptions = $("#s2 option");
-                var so = $("#s2 option:selected");
-
-                if (so.get(so.length - 1).index != alloptions.length - 1) {
-                    for (i = so.length - 1; i >= 0; i--) {
-                        var item = $(so.get(i));
-                        item.insertAfter(item.next());
-                    }
-                }
-            });
-
-            $("#s2top").click(function() {
-                var so = $("#s2 option:selected");
-                if (so.length > 0) {
-                    for (i = so.length-1 ; i >= 0; i--) {
-                        var item = $(so.get(i));
-                        item.parent().prepend(item);
-                    }
-                }
-            });
-
             $("#btn-addNode").click(function () {
                 var input = document.getElementsByName("checkbox");
                 for (k in input) {
@@ -206,46 +108,11 @@
 
         });
 
-
-        function showPreview(node_id) {
-            var content = "";
-            $.ajax({
-                type: "GET",
-                url: "getNodeContent",
-                data: "nodeId=" + node_id,
-                async: false,
-                success: function (data) {
-                    content = data[0];
-                }
-            });
-            return content;
-        }
-
-
         function isEmptyObject(e) {
             var t;
             for (t in e)
                 return !1;
             return !0
-        }
-
-        function searchTopic(key) {
-            getObjectById("hint_searchTopic").style.display = 'none';
-            if(!arguments[0]) key = document.getElementById("text_searchTopic").value;
-            $.ajax({
-                type: "GET",
-                url: "searchTopic",
-                data: "searchKey="+key,
-                success: function (data) {
-                    var result = "";
-                    $("#treeList").html("");
-                    $.each(data, function (i, item) {
-                        result += ("<li><a href='#topicId"+item.id+"' onclick=\"showDialogTree(" + item.id + ")\">"
-                        + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
-                    });
-                    $("#treeList").html(result);
-                }
-            });
         }
 
         function showDialogTree(treeId) {
@@ -267,7 +134,7 @@
 
                     });
                     $("#tree-title").html(topic);
-                    $("#tree-id").html(treeId);
+                    $("#fund-id").html(treeId);
                     showLeafNodeList(leafNodeList);
                 }
             });
@@ -279,77 +146,6 @@
                 content += list[i];
             }
             $("#leafNodePanel").html(content);
-        }
-
-        function getCandidates(id) {
-            var newList = new Array();
-            var newNode;
-            for (var i = 0; i < leafNodeList.length; i++) {
-                var node = leafNodeList[i];
-                var start = node.indexOf("(");
-                var end = node.indexOf(")");
-                var nodeId = node.substring(start + 1, end);
-                if (id == nodeId) {
-                    newNode = node.replace(/class='list-group-item'/, "class='list-group-item' " +
-                            "style='background-color:#f5f5f5'");
-                } else {
-                    newList.push(leafNodeList[i]);
-                }
-            }
-            newList.push(newNode);
-            showLeafNodeList(newList);
-            // 更新左边候选列表
-            $("#src-id").html(id);
-            $.ajax({
-                type: "GET",
-                url: 'candidateNode',
-                data: "id=" + id, // appears as $_GET['id'] @ your backend side
-                success: function(data) {
-                    // data is ur summary
-                    var result="";
-                    $.each(data, function(i, item) {
-                        var detail = showPreview(item.nodeId);
-                        result += "<option title='"+ detail + "' value='" + item.nodeId +"'>" + item.topic + "</option>";
-                    });
-                    $('#s1').html(result);
-                    window.location.hash="#leafNode"+id;
-                }
-            });
-            // 更新右边已关联列表
-            $.ajax({
-                type: "GET",
-                url: 'connectedNode',
-                data: "id=" + id,
-                success: function (data) {
-                    var result = "";
-                    $.each(data, function (i, item) {
-                        result += "<option value=\"" + item.nodeId + "\">" + item.topic + "</option>";
-                    });
-                    $("#s2").html(result);
-                    window.location.hash="#leafNode"+id;
-                }
-            });
-            window.location.hash="#leafNode"+id;
-        }
-        
-        function saveRank() {
-            var src_id = document.getElementById("src-id").innerText;
-            var options = document.getElementById("s2");
-            var result = new Array();
-            var len = options.length;
-            result.push(src_id);
-            for (var i = 0; i < len; ++i) {
-                result.push(options[i].value);
-            }
-            $.ajax({
-                type: "POST",
-                url: 'saveRank',
-                data: "options=" + result,
-                async: false
-            });
-            var treeId = document.getElementById("tree-id").innerText;
-            showDialogTree(treeId);
-            alert("保存成功");
         }
 
         var allData = "${allTopics}";
@@ -540,49 +336,43 @@
                 }
             });
         }
-        // 搜索类别
-        function searchCategory() {
-            var category = document.getElementById("input_searchCategory").value;
+        // 搜索基金
+        function searchFund(input) {
+            if (input == null) {
+                input = document.getElementById("input_searchFund").value;
+            }
             $.ajax({
                 type: "GET",
-                url: "getTopicsByCategoryName",
-                data: "categoryName=" + category,
+                url: "getFund",
+                data: "query=" + input,
                 success: function (data) {
                     var result = "";
-                    $("#treeList").html("");
-                    $.each(data, function (i, item) {
-                        result += ("<li><a href='#topicId"+item.id+"' onclick=\"showDialogTree(" + item.id + ")\">"
-                        + "<i class=\"fa fa-sitemap fa-fw\"></i>" + item.key + "</a></li>");
-                    });
-                    $("#treeList").html(result);
+                    $("#fund-profit").html("");
+                    result += "<li>一周:" + showWithColor(data.earningWeek) + "&nbsp;&nbsp;一月:"
+                        + showWithColor(data.earningMonth) + "&nbsp;&nbsp;三月:" + showWithColor(data.earning3Month) + "</li>";
+                    if (data.isCurrency) {
+                        result += "<li>七日年化:" + showWithColor(data.sevenYearEarning) + "&nbsp;&nbsp;&nbsp;万份收益:"
+                            + showWithColor(data.earningTenThousand) + "</li>";
+                    } else {
+                        result += "<li>单位净值:" + showWithColor(data.eachValue) + "&nbsp;&nbsp;&nbsp;日涨跌幅:"
+                            + showWithColor(data.priceChange) + "</li>";
+                        result += "<li>波动率:" + showWithColor(data.bodong) + "&nbsp;&nbsp;夏普率:"
+                            + showWithColor(data.sharpRate) + "&nbsp;&nbsp;M2测度:" + showWithColor(data.m2Value) + "</li>";
+                    }
+                    $("#fund-profit").html(result);
                 }
             });
         }
 
-        // 列出所有类别
-        function listAllCategories() {
-            $.ajax({
-                type: "GET",
-                url: "listCategories",
-                data: "num=20",
-                success: function (data) {
-                    var result = "";
-                    $("#dropdown_categories").html("");
-                    $.each(data, function (i, item) {
-                        result += "<li><a href=\"#\" onclick=\"getTopicsByCategoryId(" + item.categoryId + ")\">"
-                                + "<div><p><strong>" + item.category + "</strong><span class=\"pull-right text-muted\">"
-                                + item.completeRate + "% Complete</span> </p> <div class=\"progress progress-striped active\">"
-                                + "<div class=\"progress-bar progress-bar-" + item.infoColor + " role=\"progressbar\" aria-valuenow="
-                                + item.completeRate + " aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
-                                + item.completeRate +"%\"> <span class=\"sr-only\">" + item.completeRate
-                                + "% Complete</span> </div> </div> </div> </a> </li> <li class=\"divider\"></li>";
-
-                    });
-                    $("#dropdown_categories").html(result);
-                }
-            });
+        function showWithColor(number) {
+            if (number == 0) {
+                return "<span>" + number + "</span>";
+            } else if (number > 0) {
+                return "<span style='color:red'>" + number + "</span>";
+            } else {
+                return "<span style='color:green'>" + number + "</span>";
+            }
         }
-
     </script>
 </head>
 <body>
@@ -638,38 +428,39 @@
             <!-- /.dropdown-user -->
         </li>
         <!-- /.dropdown -->
-        <%--<li>--%>
-            <%--<div class="search-container">--%>
-                <%--<form class="form-inline float-sm-right">--%>
-                    <%--<input class="form-control" id="input_searchCategory" type="text" placeholder="搜索类别..">--%>
-                    <%--&lt;%&ndash;<span class="input-group-btn">&ndash;%&gt;--%>
-                    <%--<button class="btn btn-default" type="button" id="btn_searchCategory" onclick="searchCategory()">--%>
-                        <%--<i class="fa fa-search"></i></button>--%>
-                    <%--&lt;%&ndash;</span>&ndash;%&gt;--%>
-                    <%--&lt;%&ndash;<button class="btn btn-outline-success" type="submit">Search</button>&ndash;%&gt;--%>
-                <%--</form>--%>
-            <%--</div>--%>
-        <%--</li>--%>
+        <li>
+            <div class="search-container">
+                <form class="form-inline float-lg-right">
+                    <input class="form-control" id="input_searchFund" type="text" placeholder="搜索基金..">
+                    <%--<span class="input-group-btn">--%>
+                    <button class="btn btn-default" type="button" id="btn_searchFund" onclick="searchFund()">
+                        <i class="fa fa-search"></i></button>
+                    <%--</span>--%>
+                    <%--<button class="btn btn-outline-success" type="submit">Search</button>--%>
+                </form>
+            </div>
+        </li>
     </ul>
     <!-- /.navbar-top-links -->
 
     <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
-                <li class="sidebar-search">
-                    <div class="input-group custom-search-form">
-                        <input type="text" class="form-control" id="text_searchTopic" placeholder="搜索文案"
-                               onkeyup="onKeyUp(event, 'text_searchTopic', 'hint_searchTopic')" >
-                                <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" id="btn_searchTopic"
-                                        onclick="searchTopic()">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </span>
-                    </div>
-                    <div id="hint_searchTopic" style="max-height: 200px;overflow-y: auto;display: none;"></div>
-                    <!-- /input-group -->
-                </li>
+                <li></li>
+                <%--<li class="sidebar-search">--%>
+                    <%--<div class="input-group custom-search-form">--%>
+                        <%--<input type="text" class="form-control" id="text_searchTopic" placeholder="搜索文案"--%>
+                               <%--onkeyup="onKeyUp(event, 'text_searchTopic', 'hint_searchTopic')" >--%>
+                                <%--<span class="input-group-btn">--%>
+                                <%--<button class="btn btn-default" type="button" id="btn_searchTopic"--%>
+                                        <%--onclick="searchTopic()">--%>
+                                    <%--<i class="fa fa-search"></i>--%>
+                                <%--</button>--%>
+                            <%--</span>--%>
+                    <%--</div>--%>
+                    <%--<div id="hint_searchTopic" style="max-height: 200px;overflow-y: auto;display: none;"></div>--%>
+                    <%--<!-- /input-group -->--%>
+                <%--</li>--%>
             </ul>
             <ul class="nav" id="treeList" style="max-height: 520px; overflow-y: auto;">
 
@@ -682,21 +473,41 @@
     <div id="page-wrapper">
         <div class="row">
             <div class="col-lg-12">
-                <h2 class="page-header" id="tree-title"></h2>
+                <h2 class="page-header" id="fund-name"></h2>
             </div>
-            <div id="tree-id" style="display: none;"></div>
+            <div id="fund-id" style="display: none;"></div>
             <div id="src-id" style="display: none;"></div>
             <!-- /.col-lg-12 -->
         </div>
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <i class="fa fa-tasks fa-fw"></i> 叶子节点
+                        <i class="fa fa-tasks fa-fw"></i> 基本信息
                     </div>
                     <!-- /.panel-heading -->
                     <div class="panel-body">
-                        <div class="list-group" id="leafNodePanel">
+                        <div class="list-group" id="fund-basic-info">
+                            <li>基金名称：</li>
+                            <li>基金类型：</li>
+                            <li>成立日期：</li>
+                            <li>基金公司：</li>
+                            <li>基金经理：</li>
+                        </div>
+                        <!-- /.list-group -->
+                    </div>
+                    <!-- /.panel-body -->
+
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-tasks fa-fw"></i> 收益率
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="list-group" id="fund-profit">
 
                         </div>
                         <!-- /.list-group -->
@@ -705,42 +516,54 @@
 
                 </div>
             </div>
-            <div class="col-lg-12" id="nodeConnection">
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-bar-chart-o fa-fw"></i> 七日年化
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="row">
+                            <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                            <div id="sevenYearEarningChart"></div>
+                        </div>
+                        <!-- /.list-group -->
+                    </div>
+                    <!-- /.panel-body -->
 
-                <table class="table table-bordered table-hover table-striped">
-                    <tr>
-                        <td width="45%">
-                            <select name="s1" size="20" multiple="multiple" id="s1" style="width:100%"></select>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-bar-chart-o fa-fw"></i> 万份收益
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="panel-body">
+                        <div class="row">
+                            <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                            <div id="TenThousandEarning"></div>
+                        </div>
+                        <!-- /.list-group -->
+                    </div>
+                    <!-- /.panel-body -->
 
-                            <div class="panel-footer">
-                                <div class="input-group">
-                                    <input id="btn-addNode-input" type="text" class="form-control input-sm"
-                                           placeholder="输入要关联的节点..."
-                                           onkeyup="onCheckBox(event, 'btn-addNode-input', 'hint_addTopic')" />
-                                <span class="input-group-btn">
-                                    <button class="btn btn-success btn-sm" id="btn-addNode">Add</button>
-                                </span>
-                                </div>
-                                <div id="hint_addTopic" style="height: 220px; overflow-y: auto;"></div>
-                            </div>
-                        </td>
-                        <td  align="center" width="5%">
-                            <button class="btn btn-default" type="button" name="add" id="add"> >> </button><br/><br/>
-                            <button class="btn btn-default" type="button" name="remove" id="remove"> << </button><br/><br/>
-                            <button class="btn btn-success btn-sm" type="button" name="addall" id="addall">全选</button><br/><br/>
-                            <button class="btn btn-danger btn-sm" name="removeall" id="removeall">全删</button></td>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-table fa-fw"></i> 净值
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-bordered table-hover table-striped" id="fund-value">
 
-                        <td width="45%">
-                            <select name="s2" size="20" multiple="multiple" id="s2" style="width:100%"></select>
-                        </td>
-                        <td width="5%" align="center">
-                            <button class="btn btn-default" name="s2top" id="s2top">置顶</button><br/><br/>
-                            <button class="btn btn-default" name="s2up" id="s2up">上移</button><br/><br/>
-                            <button class="btn btn-default" name="s2down" id="s2down">下移</button><br/><br/>
-                            <button class="btn btn-success" name="save" id="save" onclick="saveRank()">保存</button>
-                        </td>
-                    </tr>
-                </table>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -761,7 +584,8 @@
 <script src='<c:url value="/resources/sbadmin/vendor/morrisjs/morris.min.js"></c:url>'></script>
 <script src='<c:url value="/resources/sbadmin/data/morris-data.js"></c:url>'></script>
 <script src='<c:url value="/resources/sbadmin/dist/js/sb-admin-2.js"></c:url>'></script>
-
+<%--引入echarts--%>
+<script src='<c:url value="/resources/echarts.js"></c:url>'></script>
 <%--<!-- Bootstrap Core JavaScript -->--%>
 <%--<script src="/resources/sbadmin/vendor/bootstrap/js/bootstrap.min.js"></script>--%>
 
