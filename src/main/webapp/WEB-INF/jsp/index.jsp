@@ -373,6 +373,38 @@
                 return "<span style='color:green'>" + number + "</span>";
             }
         }
+
+        function chartSevenYear(){
+            // 基于准备好的dom，初始化echarts实例
+            var title_name = '七日年化'
+            var label = '年化利率'
+            var myChart = echarts.init(document.getElementById('sevenYearEarningChart'));
+            var showData = eval($('#chartData').text());
+            var xaxis = eval($('#chartData').text())[10];
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: title_name
+                },
+                tooltip: {},
+                legend: {
+                    data:[label]
+                },
+                xAxis: {
+                    type:"time",
+                    data: xaxis
+                },
+                yAxis: {},
+                series: [{
+                    name: '',
+                    type: 'line',
+                    data: showData,
+                }]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+
     </script>
 </head>
 <body>
@@ -446,25 +478,15 @@
     <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
-                <li></li>
-                <%--<li class="sidebar-search">--%>
-                    <%--<div class="input-group custom-search-form">--%>
-                        <%--<input type="text" class="form-control" id="text_searchTopic" placeholder="搜索文案"--%>
-                               <%--onkeyup="onKeyUp(event, 'text_searchTopic', 'hint_searchTopic')" >--%>
-                                <%--<span class="input-group-btn">--%>
-                                <%--<button class="btn btn-default" type="button" id="btn_searchTopic"--%>
-                                        <%--onclick="searchTopic()">--%>
-                                    <%--<i class="fa fa-search"></i>--%>
-                                <%--</button>--%>
-                            <%--</span>--%>
-                    <%--</div>--%>
-                    <%--<div id="hint_searchTopic" style="max-height: 200px;overflow-y: auto;display: none;"></div>--%>
-                    <%--<!-- /input-group -->--%>
-                <%--</li>--%>
+                <li><a href="#fund-basic-info">基本信息</a></li>
+                <li><a href="#fund-profit">收益率</a></li>
+                <li><a href="#sevenYearEarning">七日年化</a></li>
+                <li><a href="#tenThousandEarning">万份收益</a></li>
+                <li><a href="#historyValue">历史净值</a></li>
             </ul>
-            <ul class="nav" id="treeList" style="max-height: 520px; overflow-y: auto;">
+            <%--<ul class="nav" id="treeList" style="max-height: 520px; overflow-y: auto;">--%>
 
-            </ul>
+            <%--</ul>--%>
         </div>
         <!-- /.sidebar-collapse -->
     </div>
@@ -481,13 +503,13 @@
         </div>
         <div class="row">
             <div class="col-lg-6">
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="fund-basic-info">
                     <div class="panel-heading">
                         <i class="fa fa-tasks fa-fw"></i> 基本信息
                     </div>
                     <!-- /.panel-heading -->
                     <div class="panel-body">
-                        <div class="list-group" id="fund-basic-info">
+                        <div class="list-group">
                             <li>基金名称：</li>
                             <li>基金类型：</li>
                             <li>成立日期：</li>
@@ -519,7 +541,7 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="sevenYearEarning">
                     <div class="panel-heading">
                         <i class="fa fa-bar-chart-o fa-fw"></i> 七日年化
                     </div>
@@ -536,7 +558,7 @@
                 </div>
             </div>
             <div class="col-lg-12">
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="tenThousandEarning">
                     <div class="panel-heading">
                         <i class="fa fa-bar-chart-o fa-fw"></i> 万份收益
                     </div>
@@ -544,7 +566,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-                            <div id="TenThousandEarning"></div>
+                            <div id="tenThousandEarningChart"></div>
                         </div>
                         <!-- /.list-group -->
                     </div>
@@ -553,9 +575,9 @@
                 </div>
             </div>
             <div class="col-lg-12">
-                <div class="panel panel-default">
+                <div class="panel panel-default" id="historyValue">
                     <div class="panel-heading">
-                        <i class="fa fa-table fa-fw"></i> 净值
+                        <i class="fa fa-table fa-fw"></i> 历史净值
                     </div>
                     <div class="panel-body">
                         <table class="table table-bordered table-hover table-striped" id="fund-value">
